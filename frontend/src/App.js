@@ -7,17 +7,6 @@ import Form from './components/Form';
 import ResultCard from './components/ResultCard';
 import Explanation from './components/Explanation';
 import FertilizerPanel from './components/FertilizerPanel';
-/*const API =
-  window.location.hostname === "localhost"
-    ? "http://localhost:5000"
-    : "http://10.0.2.2:5000";8?*/
-//const API = "http://10.10.10.46:5000";
-//const API = "http://localhost:5000";
-//const API = window.location.hostname === "localhost"
-  //? "http://localhost:5000"
-  //: "http://10.77.92.117:5000";
-// Use the frontend proxy during development and the same origin in production.
-// Standardizing on the Express Backend Port (3001) as per documentation.
 const API = `https://farmwise-vsm6.onrender.com/api`;
 
 function useReveal() {
