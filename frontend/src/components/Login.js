@@ -22,6 +22,7 @@ export default function Login({ onLogin, onGoRegister, apiBase }) {
         body: JSON.stringify(form),
       });
       const data = await res.json();
+      console.log("check"+data)
       if (!res.ok) throw new Error(data.error || 'Login failed.');
       localStorage.setItem('token', data.token);
       localStorage.setItem('username', data.username);
