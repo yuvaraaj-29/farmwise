@@ -15,7 +15,7 @@ const fs = require('fs');
 const app = express();
 app.use(helmet());
 app.use(morgan('dev'));
-app.use(cors({ origin: process.env.CORS_ORIGIN || '*' }));
+app.use(cors({ origin:'*' }));
 app.use(express.json());
 const MONGO_URI = process.env.MONGO_URI;
 mongoose.connect(MONGO_URI)
