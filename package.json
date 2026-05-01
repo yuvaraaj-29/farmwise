@@ -1,0 +1,13 @@
+{
+  "name": "farmwise-main",
+  "version": "1.0.0",
+  "description": "XAI-based crop recommendation using 6 ML models from the paper with MongoDB authentication.",
+  "main": "index.js",
+  "scripts": {
+    "start":"cross-env N"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs"
+}
