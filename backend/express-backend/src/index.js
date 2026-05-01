@@ -5,7 +5,6 @@ const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
 const mongoose = require('mongoose');
-const path = require('path');
 
 // Routes
 const predictRoutes = require('./routes/predict');
@@ -25,22 +24,21 @@ app.use(morgan('dev'));
 app.use(cors({ origin: '*' }));
 app.use(express.json());
 
-/* ---------------- ENV CHECK ---------------- */
+/* ---------------- ENV ---------------- */
 const MONGO_URI = process.env.MONGO_URI;
 const PORT = process.env.PORT || 3001;
-
-if (!MONGO_URI) {
-  console.error('[MongoDB] ERROR: MONGO_URI is not defined in environment variables');
-}
+const ML_SERVICE_URL = process.env.ML_SERVICE_URL;
 
 /* ---------------- MONGODB CONNECTION ---------------- */
-if (MONGO_URI) {
-  mongoose.connect(MONGO_URI)
-    .then(() => console.log('[MongoDB] Connected'))
-    .catch(err =>
-      console.warn(`[MongoDB] Not connected: ${err.message}`)
-    );
+if (!MONGO_URI) {
+  console.error('[MongoDB] MONGO_URI is missing in environment variables');
 }
+
+mongoose.connect(MONGO_URI)
+  .then(() => console.log('[MongoDB] Connected'))
+  .catch(err => {
+    console.error('[MongoDB] Connection failed:', err.message);
+  });
 
 /* ---------------- ROUTES ---------------- */
 app.use('/api/predict', predictRoutes);
@@ -67,7 +65,7 @@ app.get('/api/health', async (req, res) => {
   });
 });
 
-/* ---------------- 404 HANDLER ---------------- */
+/* ---------------- 404 ---------------- */
 app.use((req, res) => {
   res.status(404).json({ error: 'Route not found' });
 });
@@ -75,13 +73,11 @@ app.use((req, res) => {
 /* ---------------- ERROR HANDLER ---------------- */
 app.use((err, req, res, next) => {
   console.error('[Server Error]', err);
-  res.status(500).json({
-    error: err.message || 'Internal server errors'
-  });
+  res.status(500).json({ error: err.message || 'Internal server error' });
 });
 
-/* ---------------- START SERVER ---------------- */
+/* ---------------- START ---------------- */
 app.listen(PORT, () => {
   console.log(`\n[FarmWise Express] Server running on port ${PORT}`);
-  console.log(`[FarmWise Express] ML Service → ${process.env.ML_SERVICE_URL || 'http://localhost:8000'}`);
+  console.log(`[FarmWise Express] ML Service → ${ML_SERVICE_URL || 'NOT SET'}`);
 });
