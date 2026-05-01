@@ -18,7 +18,7 @@ import FertilizerPanel from './components/FertilizerPanel';
   //: "http://10.77.92.117:5000";
 // Use the frontend proxy during development and the same origin in production.
 // Standardizing on the Express Backend Port (3001) as per documentation.
-const API = window.location.hostname === 'localhost' ? 'http://localhost:3001/api' : '/api';
+const API = `https://farmwise-vsm6.onrender.com/api`;
 
 function useReveal() {
   const ref = useRef(null);
