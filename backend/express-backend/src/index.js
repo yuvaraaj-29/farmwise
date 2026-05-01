@@ -40,19 +40,7 @@ app.get('/api/health', async (req, res) => {
     ml_service: mlStatus,
   });
 });
-if (process.env.NODE_ENV === 'production') {
-  
-   const buildPath = path.resolve(__dirname, '../../../frontend/build');
-  console.log("Serving from:", buildPath);
-  console.log("Index exists:", fs.existsSync(path.join(buildPath, 'index.html')));
 
-  app.use(express.static(buildPath));
-
-  app.get('*', (req, res) => {
-    res.sendFile(path.join(buildPath, 'index.html'));
-
-  });
-}
 
 app.use((req, res) => res.status(404).json({ error: 'Route not found' }));
 app.use((err, req, res, next) => {
