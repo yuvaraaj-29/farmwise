@@ -1,0 +1,720 @@
+{
+  "rice": {
+    "npk_ha": { "N": 120, "P2O5": 40, "K2O": 40 },
+    "npk_acre": { "N": 48.6, "P2O5": 16.2, "K2O": 16.2 },
+    "duration_days": 105,
+    "fym_t_ha": 12.5,
+    "fym_t_acre": 5.05,
+    "schedule": [
+      {
+        "day": 0,
+        "stage": "basal",
+        "description": "Full P + 1/3 N + 1/2 K + FYM (at transplanting)",
+        "fertilizers": [
+          { "name": "DAP", "qty_kg_ha": 87, "qty_kg_acre": 35.2 },
+          { "name": "MOP", "qty_kg_ha": 33, "qty_kg_acre": 13.4 },
+          { "name": "Urea", "qty_kg_ha": 43, "qty_kg_acre": 17.4 },
+          { "name": "FYM", "qty_t_ha": 12.5, "qty_t_acre": 5.05 }
+        ]
+      },
+      {
+        "day": 25,
+        "stage": "active_tillering",
+        "description": "1/3 N + remaining 1/2 K",
+        "fertilizers": [
+          { "name": "Urea", "qty_kg_ha": 43, "qty_kg_acre": 17.4 },
+          { "name": "MOP", "qty_kg_ha": 33, "qty_kg_acre": 13.4 }
+        ]
+      },
+      {
+        "day": 45,
+        "stage": "panicle_initiation",
+        "description": "Remaining 1/3 N (use LCC if available)",
+        "fertilizers": [
+          { "name": "Urea", "qty_kg_ha": 43, "qty_kg_acre": 17.4 }
+        ]
+      }
+    ],
+    "note": "TNAU blanket for irrigated transplanted rice. Use Leaf Color Chart for N optimization. Hybrids may need 20–25% higher N."
+  },
+  "maize": {
+    "npk_ha": { "N": 250, "P2O5": 75, "K2O": 75 },
+    "npk_acre": { "N": 101, "P2O5": 30.4, "K2O": 30.4 },
+    "duration_days": 90,
+    "schedule": [
+      {
+        "day": 0,
+        "stage": "basal",
+        "description": "Full P + full K + 1/4 N (at sowing)",
+        "fertilizers": [
+          { "name": "DAP", "qty_kg_ha": 163, "qty_kg_acre": 66.0 },
+          { "name": "MOP", "qty_kg_ha": 125, "qty_kg_acre": 50.6 },
+          { "name": "Urea", "qty_kg_ha": 68, "qty_kg_acre": 27.5 }
+        ]
+      },
+      {
+        "day": 25,
+        "stage": "vegetative_v4_v6",
+        "description": "1/2 N top-dress",
+        "fertilizers": [
+          { "name": "Urea", "qty_kg_ha": 136, "qty_kg_acre": 55.1 }
+        ]
+      },
+      {
+        "day": 50,
+        "stage": "pre_flowering",
+        "description": "Remaining 1/4 N",
+        "fertilizers": [
+          { "name": "Urea", "qty_kg_ha": 68, "qty_kg_acre": 27.5 }
+        ]
+      }
+    ],
+    "note": "TNAU for irrigated hybrid maize. Split N in 3 doses to reduce losses. Fertigation can replace top-dress doses for drip systems."
+  },
+  "banana": {
+    "npk_ha": { "N": 250, "P2O5": 100, "K2O": 300 },
+    "npk_acre": { "N": 101, "P2O5": 40.5, "K2O": 121.5 },
+    "duration_days": 365,
+    "fym_t_ha": 25,
+    "fym_t_acre": 10.1,
+    "schedule": [
+      {
+        "day": 0,
+        "stage": "planting",
+        "description": "Full P + 1/3 N + 1/3 K + FYM",
+        "fertilizers": [
+          { "name": "DAP", "qty_kg_ha": 217, "qty_kg_acre": 87.8 },
+          { "name": "Urea", "qty_kg_ha": 83, "qty_kg_acre": 33.6 },
+          { "name": "MOP", "qty_kg_ha": 167, "qty_kg_acre": 67.6 },
+          { "name": "FYM", "qty_t_ha": 25, "qty_t_acre": 10.1 }
+        ]
+      },
+      {
+        "day": 60,
+        "stage": "vegetative",
+        "description": "1/3 N + 1/3 K",
+        "fertilizers": [
+          { "name": "Urea", "qty_kg_ha": 83, "qty_kg_acre": 33.6 },
+          { "name": "MOP", "qty_kg_ha": 167, "qty_kg_acre": 67.6 }
+        ]
+      },
+      {
+        "day": 120,
+        "stage": "bunch_initiation",
+        "description": "Remaining 1/3 N + 1/3 K",
+        "fertilizers": [
+          { "name": "Urea", "qty_kg_ha": 83, "qty_kg_acre": 33.6 },
+          { "name": "MOP", "qty_kg_ha": 167, "qty_kg_acre": 67.6 }
+        ]
+      }
+    ],
+    "note": "High K requirement. TNAU recommends three equal splits. Adjust for soil test; K especially critical for bunch filling."
+  },
+  "coconut": {
+    "npk_ha": { "N": 180, "P2O5": 80, "K2O": 160 },
+    "npk_acre": { "N": 72.9, "P2O5": 32.4, "K2O": 64.8 },
+    "duration_days": 365,
+    "fym_t_ha": 50,
+    "fym_t_acre": 20.2,
+    "schedule": [
+      {
+        "day": 0,
+        "stage": "first_split_jun_jul",
+        "description": "1/2 dose N + full P + 1/2 K + FYM (June–July, onset of SW monsoon)",
+        "fertilizers": [
+          { "name": "Urea", "qty_kg_ha": 98, "qty_kg_acre": 39.7 },
+          { "name": "DAP", "qty_kg_ha": 87, "qty_kg_acre": 35.2 },
+          { "name": "MOP", "qty_kg_ha": 133, "qty_kg_acre": 53.8 },
+          { "name": "FYM", "qty_t_ha": 50, "qty_t_acre": 20.2 }
+        ]
+      },
+      {
+        "day": 180,
+        "stage": "second_split_dec_jan",
+        "description": "Remaining 1/2 N + 1/2 K (December–January)",
+        "fertilizers": [
+          { "name": "Urea", "qty_kg_ha": 98, "qty_kg_acre": 39.7 },
+          { "name": "MOP", "qty_kg_ha": 133, "qty_kg_acre": 53.8 }
+        ]
+      }
+    ],
+    "note": "Apply in circular basins 1.8 m from trunk, fork in lightly. FYM is per palm (~50 kg/palm); hectare basis assumes ~200 palms/ha."
+  },
+  "blackgram": {
+    "npk_ha": { "N": 20, "P2O5": 40, "K2O": 20 },
+    "npk_acre": { "N": 8, "P2O5": 16.2, "K2O": 8.1 },
+    "duration_days": 70,
+    "schedule": [
+      {
+        "day": 0,
+        "stage": "basal",
+        "description": "Full dose at sowing + Rhizobium seed inoculation",
+        "fertilizers": [
+          { "name": "DAP", "qty_kg_ha": 87, "qty_kg_acre": 35.2 },
+          { "name": "MOP", "qty_kg_ha": 33, "qty_kg_acre": 13.4 }
+        ]
+      },
+      {
+        "day": 30,
+        "stage": "flowering",
+        "description": "Foliar spray — 2% DAP solution",
+        "fertilizers": [
+          { "name": "DAP (foliar 2%)", "qty_kg_ha": 20, "qty_kg_acre": 8.1, "note": "Dissolve in 1000 L water/ha" }
+        ]
+      }
+    ],
+    "note": "Urad dal. No basal N — Rhizobium fixes N. Foliar DAP at flowering improves pod set and seed weight."
+  },
+  "chickpea": {
+    "npk_ha": { "N": 25, "P2O5": 50, "K2O": 25 },
+    "npk_acre": { "N": 10.1, "P2O5": 20.2, "K2O": 10.1 },
+    "duration_days": 110,
+    "schedule": [
+      {
+        "day": 0,
+        "stage": "basal",
+        "description": "Full dose at sowing + Rhizobium seed treatment",
+        "fertilizers": [
+          { "name": "DAP", "qty_kg_ha": 109, "qty_kg_acre": 44.1 },
+          { "name": "MOP", "qty_kg_ha": 42, "qty_kg_acre": 17.0 }
+        ]
+      },
+      {
+        "day": 45,
+        "stage": "flower_bud_initiation",
+        "description": "Foliar spray — 2% DAP solution",
+        "fertilizers": [
+          { "name": "DAP (foliar 2%)", "qty_kg_ha": 20, "qty_kg_acre": 8.1, "note": "Dissolve in 1000 L water/ha" }
+        ]
+      }
+    ],
+    "note": "Bengalgram. Low N due to fixation. Foliar DAP at 45 DAS improves pod fill."
+  },
+  "pigeonpeas": {
+    "npk_ha": { "N": 20, "P2O5": 50, "K2O": 20 },
+    "npk_acre": { "N": 8.1, "P2O5": 20.2, "K2O": 8.1 },
+    "duration_days": 150,
+    "schedule": [
+      {
+        "day": 0,
+        "stage": "basal",
+        "description": "Full dose at sowing + Rhizobium inoculation",
+        "fertilizers": [
+          { "name": "DAP", "qty_kg_ha": 109, "qty_kg_acre": 44.1 },
+          { "name": "MOP", "qty_kg_ha": 33, "qty_kg_acre": 13.4 }
+        ]
+      },
+      {
+        "day": 60,
+        "stage": "branching",
+        "description": "Foliar spray — 2% DAP solution",
+        "fertilizers": [
+          { "name": "DAP (foliar 2%)", "qty_kg_ha": 20, "qty_kg_acre": 8.1, "note": "Dissolve in 1000 L water/ha" }
+        ]
+      }
+    ],
+    "note": "Redgram / Tur. Rhizobium recommended. Long-duration varieties may benefit from second foliar at 90 DAS."
+  },
+  "kidneybeans": {
+    "npk_ha": { "N": 20, "P2O5": 60, "K2O": 20 },
+    "npk_acre": { "N": 8.1, "P2O5": 24.3, "K2O": 8.1 },
+    "duration_days": 90,
+    "schedule": [
+      {
+        "day": 0,
+        "stage": "basal",
+        "description": "Full dose at sowing",
+        "fertilizers": [
+          { "name": "DAP", "qty_kg_ha": 130, "qty_kg_acre": 52.6 },
+          { "name": "MOP", "qty_kg_ha": 33, "qty_kg_acre": 13.4 }
+        ]
+      },
+      {
+        "day": 35,
+        "stage": "flowering",
+        "description": "Foliar spray — 2% DAP solution",
+        "fertilizers": [
+          { "name": "DAP (foliar 2%)", "qty_kg_ha": 20, "qty_kg_acre": 8.1, "note": "Dissolve in 1000 L water/ha" }
+        ]
+      }
+    ],
+    "note": "Pulse crop — low N requirement due to fixation."
+  },
+  "mungbean": {
+    "npk_ha": { "N": 20, "P2O5": 40, "K2O": 20 },
+    "npk_acre": { "N": 8.1, "P2O5": 16.2, "K2O": 8.1 },
+    "duration_days": 65,
+    "schedule": [
+      {
+        "day": 0,
+        "stage": "basal",
+        "description": "Full dose at sowing + Rhizobium seed treatment",
+        "fertilizers": [
+          { "name": "DAP", "qty_kg_ha": 87, "qty_kg_acre": 35.2 },
+          { "name": "MOP", "qty_kg_ha": 33, "qty_kg_acre": 13.4 }
+        ]
+      },
+      {
+        "day": 30,
+        "stage": "flowering",
+        "description": "Foliar spray — 2% DAP solution",
+        "fertilizers": [
+          { "name": "DAP (foliar 2%)", "qty_kg_ha": 20, "qty_kg_acre": 8.1, "note": "Dissolve in 1000 L water/ha" }
+        ]
+      }
+    ],
+    "note": "Greengram. Short duration — foliar at first flower is critical."
+  },
+  "mothbeans": {
+    "npk_ha": { "N": 20, "P2O5": 45, "K2O": 20 },
+    "npk_acre": { "N": 8.1, "P2O5": 18.2, "K2O": 8.1 },
+    "duration_days": 90,
+    "schedule": [
+      {
+        "day": 0,
+        "stage": "basal",
+        "description": "Full dose at sowing",
+        "fertilizers": [
+          { "name": "DAP", "qty_kg_ha": 98, "qty_kg_acre": 39.7 },
+          { "name": "MOP", "qty_kg_ha": 33, "qty_kg_acre": 13.4 }
+        ]
+      },
+      {
+        "day": 35,
+        "stage": "flowering",
+        "description": "Foliar spray — 2% DAP solution",
+        "fertilizers": [
+          { "name": "DAP (foliar 2%)", "qty_kg_ha": 20, "qty_kg_acre": 8.1, "note": "Dissolve in 1000 L water/ha" }
+        ]
+      }
+    ],
+    "note": "Drought-tolerant pulse. Foliar spray at flowering improves pod filling."
+  },
+  "lentil": {
+    "npk_ha": { "N": 20, "P2O5": 40, "K2O": 20 },
+    "npk_acre": { "N": 8.1, "P2O5": 16.2, "K2O": 8.1 },
+    "duration_days": 110,
+    "schedule": [
+      {
+        "day": 0,
+        "stage": "basal",
+        "description": "Full dose at sowing + Rhizobium seed treatment",
+        "fertilizers": [
+          { "name": "DAP", "qty_kg_ha": 87, "qty_kg_acre": 35.2 },
+          { "name": "MOP", "qty_kg_ha": 33, "qty_kg_acre": 13.4 }
+        ]
+      },
+      {
+        "day": 45,
+        "stage": "flowering",
+        "description": "Foliar spray — 2% DAP solution",
+        "fertilizers": [
+          { "name": "DAP (foliar 2%)", "qty_kg_ha": 20, "qty_kg_acre": 8.1, "note": "Dissolve in 1000 L water/ha" }
+        ]
+      }
+    ],
+    "note": "Rhizobium inoculation essential. Foliar DAP at 45 DAS improves seed weight."
+  },
+  "cotton": {
+    "npk_ha": { "N": 120, "P2O5": 60, "K2O": 60 },
+    "npk_acre": { "N": 48.6, "P2O5": 24.3, "K2O": 24.3 },
+    "duration_days": 180,
+    "schedule": [
+      {
+        "day": 0,
+        "stage": "basal",
+        "description": "Full P + 1/3 N + 1/2 K (at sowing)",
+        "fertilizers": [
+          { "name": "DAP", "qty_kg_ha": 130, "qty_kg_acre": 52.6 },
+          { "name": "MOP", "qty_kg_ha": 50, "qty_kg_acre": 20.2 },
+          { "name": "Urea", "qty_kg_ha": 87, "qty_kg_acre": 35.2 }
+        ]
+      },
+      {
+        "day": 45,
+        "stage": "square_formation",
+        "description": "1/3 N + remaining 1/2 K",
+        "fertilizers": [
+          { "name": "Urea", "qty_kg_ha": 87, "qty_kg_acre": 35.2 },
+          { "name": "MOP", "qty_kg_ha": 50, "qty_kg_acre": 20.2 }
+        ]
+      },
+      {
+        "day": 90,
+        "stage": "boll_development",
+        "description": "Remaining 1/3 N",
+        "fertilizers": [
+          { "name": "Urea", "qty_kg_ha": 43, "qty_kg_acre": 17.4 }
+        ]
+      }
+    ],
+    "note": "For hybrid/Bt cotton. Third dose of N at boll development is critical to prevent premature shedding."
+  },
+  "jute": {
+    "npk_ha": { "N": 80, "P2O5": 40, "K2O": 40 },
+    "npk_acre": { "N": 32.4, "P2O5": 16.2, "K2O": 16.2 },
+    "duration_days": 120,
+    "schedule": [
+      {
+        "day": 0,
+        "stage": "basal",
+        "description": "Full P + full K + 1/2 N (at sowing)",
+        "fertilizers": [
+          { "name": "DAP", "qty_kg_ha": 87, "qty_kg_acre": 35.2 },
+          { "name": "MOP", "qty_kg_ha": 67, "qty_kg_acre": 27.1 },
+          { "name": "Urea", "qty_kg_ha": 43, "qty_kg_acre": 17.4 }
+        ]
+      },
+      {
+        "day": 30,
+        "stage": "vegetative_top_dress",
+        "description": "Remaining 1/2 N (top dress)",
+        "fertilizers": [
+          { "name": "Urea", "qty_kg_ha": 43, "qty_kg_acre": 17.4 }
+        ]
+      }
+    ],
+    "note": "TNAU recommendation for white/tossa jute. Second N dose at 30 DAS promotes rapid stem elongation."
+  },
+  "pomegranate": {
+    "npk_ha": { "N": 100, "P2O5": 60, "K2O": 100 },
+    "npk_acre": { "N": 40.5, "P2O5": 24.3, "K2O": 40.5 },
+    "duration_days": 365,
+    "fym_t_ha": 25,
+    "fym_t_acre": 10.1,
+    "schedule": [
+      {
+        "day": 0,
+        "stage": "basal_after_pruning",
+        "description": "Full P + 1/3 N + 1/3 K + FYM (at bahar treatment / pruning)",
+        "fertilizers": [
+          { "name": "DAP", "qty_kg_ha": 130, "qty_kg_acre": 52.6 },
+          { "name": "Urea", "qty_kg_ha": 54, "qty_kg_acre": 21.9 },
+          { "name": "MOP", "qty_kg_ha": 56, "qty_kg_acre": 22.7 },
+          { "name": "FYM", "qty_t_ha": 25, "qty_t_acre": 10.1 }
+        ]
+      },
+      {
+        "day": 60,
+        "stage": "fruit_set",
+        "description": "1/3 N + 1/3 K",
+        "fertilizers": [
+          { "name": "Urea", "qty_kg_ha": 54, "qty_kg_acre": 21.9 },
+          { "name": "MOP", "qty_kg_ha": 56, "qty_kg_acre": 22.7 }
+        ]
+      },
+      {
+        "day": 120,
+        "stage": "fruit_development",
+        "description": "Remaining 1/3 N + 1/3 K",
+        "fertilizers": [
+          { "name": "Urea", "qty_kg_ha": 54, "qty_kg_acre": 21.9 },
+          { "name": "MOP", "qty_kg_ha": 55, "qty_kg_acre": 22.3 }
+        ]
+      }
+    ],
+    "note": "Apply per bahar cycle. Mrig bahar is most popular in TN. Apply in ring basins around drip-zone."
+  },
+  "papaya": {
+    "npk_ha": { "N": 120, "P2O5": 60, "K2O": 80 },
+    "npk_acre": { "N": 48.6, "P2O5": 24.3, "K2O": 32.4 },
+    "duration_days": 365,
+    "fym_t_ha": 25,
+    "fym_t_acre": 10.1,
+    "schedule": [
+      {
+        "day": 0,
+        "stage": "planting",
+        "description": "Full P + 1/3 N + 1/3 K + FYM",
+        "fertilizers": [
+          { "name": "DAP", "qty_kg_ha": 130, "qty_kg_acre": 52.6 },
+          { "name": "Urea", "qty_kg_ha": 65, "qty_kg_acre": 26.3 },
+          { "name": "MOP", "qty_kg_ha": 44, "qty_kg_acre": 17.8 },
+          { "name": "FYM", "qty_t_ha": 25, "qty_t_acre": 10.1 }
+        ]
+      },
+      {
+        "day": 60,
+        "stage": "establishment",
+        "description": "1/3 N + 1/3 K",
+        "fertilizers": [
+          { "name": "Urea", "qty_kg_ha": 65, "qty_kg_acre": 26.3 },
+          { "name": "MOP", "qty_kg_ha": 44, "qty_kg_acre": 17.8 }
+        ]
+      },
+      {
+        "day": 120,
+        "stage": "flowering_fruiting",
+        "description": "Remaining 1/3 N + 1/3 K",
+        "fertilizers": [
+          { "name": "Urea", "qty_kg_ha": 65, "qty_kg_acre": 26.3 },
+          { "name": "MOP", "qty_kg_ha": 44, "qty_kg_acre": 17.8 }
+        ]
+      }
+    ],
+    "note": "Thereafter apply N and K every 60 days. Avoid excess N after fruiting begins — causes poor fruit quality."
+  },
+  "watermelon": {
+    "npk_ha": { "N": 80, "P2O5": 50, "K2O": 60 },
+    "npk_acre": { "N": 32.4, "P2O5": 20.2, "K2O": 24.3 },
+    "duration_days": 90,
+    "schedule": [
+      {
+        "day": 0,
+        "stage": "basal",
+        "description": "Full P + 1/2 N + 1/2 K (at pit filling / sowing)",
+        "fertilizers": [
+          { "name": "DAP", "qty_kg_ha": 109, "qty_kg_acre": 44.1 },
+          { "name": "MOP", "qty_kg_ha": 50, "qty_kg_acre": 20.2 },
+          { "name": "Urea", "qty_kg_ha": 43, "qty_kg_acre": 17.4 }
+        ]
+      },
+      {
+        "day": 30,
+        "stage": "vine_development",
+        "description": "Remaining 1/2 N + 1/2 K",
+        "fertilizers": [
+          { "name": "Urea", "qty_kg_ha": 43, "qty_kg_acre": 17.4 },
+          { "name": "MOP", "qty_kg_ha": 50, "qty_kg_acre": 20.2 }
+        ]
+      },
+      {
+        "day": 55,
+        "stage": "fruit_set",
+        "description": "Foliar spray — 0.5% KNO3 to boost fruit development",
+        "fertilizers": [
+          { "name": "KNO3 (foliar 0.5%)", "qty_kg_ha": 5, "qty_kg_acre": 2.0, "note": "Dissolve in 1000 L water/ha" }
+        ]
+      }
+    ],
+    "note": "TNAU for summer watermelon. KNO3 foliar at fruit set improves brix and fruit weight."
+  },
+  "muskmelon": {
+    "npk_ha": { "N": 80, "P2O5": 50, "K2O": 60 },
+    "npk_acre": { "N": 32.4, "P2O5": 20.2, "K2O": 24.3 },
+    "duration_days": 90,
+    "schedule": [
+      {
+        "day": 0,
+        "stage": "basal",
+        "description": "Full P + 1/2 N + 1/2 K (at pit filling / sowing)",
+        "fertilizers": [
+          { "name": "DAP", "qty_kg_ha": 109, "qty_kg_acre": 44.1 },
+          { "name": "MOP", "qty_kg_ha": 50, "qty_kg_acre": 20.2 },
+          { "name": "Urea", "qty_kg_ha": 43, "qty_kg_acre": 17.4 }
+        ]
+      },
+      {
+        "day": 30,
+        "stage": "vine_development",
+        "description": "Remaining 1/2 N + 1/2 K",
+        "fertilizers": [
+          { "name": "Urea", "qty_kg_ha": 43, "qty_kg_acre": 17.4 },
+          { "name": "MOP", "qty_kg_ha": 50, "qty_kg_acre": 20.2 }
+        ]
+      },
+      {
+        "day": 55,
+        "stage": "fruit_set",
+        "description": "Foliar spray — 0.5% KNO3 to improve sweetness",
+        "fertilizers": [
+          { "name": "KNO3 (foliar 0.5%)", "qty_kg_ha": 5, "qty_kg_acre": 2.0, "note": "Dissolve in 1000 L water/ha" }
+        ]
+      }
+    ],
+    "note": "Same schedule as watermelon. High K improves sugar content and shelf life."
+  },
+  "orange": {
+    "npk_ha": { "N": 120, "P2O5": 60, "K2O": 120 },
+    "npk_acre": { "N": 48.6, "P2O5": 24.3, "K2O": 48.6 },
+    "duration_days": 365,
+    "fym_t_ha": 25,
+    "fym_t_acre": 10.1,
+    "schedule": [
+      {
+        "day": 0,
+        "stage": "post_harvest_feb_mar",
+        "description": "Full P + 1/3 N + 1/3 K + FYM (after harvest pruning)",
+        "fertilizers": [
+          { "name": "DAP", "qty_kg_ha": 130, "qty_kg_acre": 52.6 },
+          { "name": "Urea", "qty_kg_ha": 43, "qty_kg_acre": 17.4 },
+          { "name": "MOP", "qty_kg_ha": 67, "qty_kg_acre": 27.1 },
+          { "name": "FYM", "qty_t_ha": 25, "qty_t_acre": 10.1 }
+        ]
+      },
+      {
+        "day": 90,
+        "stage": "flowering_jun_jul",
+        "description": "1/3 N + 1/3 K",
+        "fertilizers": [
+          { "name": "Urea", "qty_kg_ha": 43, "qty_kg_acre": 17.4 },
+          { "name": "MOP", "qty_kg_ha": 67, "qty_kg_acre": 27.1 }
+        ]
+      },
+      {
+        "day": 180,
+        "stage": "fruit_development_sep_oct",
+        "description": "Remaining 1/3 N + 1/3 K",
+        "fertilizers": [
+          { "name": "Urea", "qty_kg_ha": 43, "qty_kg_acre": 17.4 },
+          { "name": "MOP", "qty_kg_ha": 67, "qty_kg_acre": 27.1 }
+        ]
+      }
+    ],
+    "note": "Apply in 60 cm wide ring basins. Micronutrient spray (ZnSO4 0.5% + Borax 0.1%) at flowering recommended."
+  },
+  "mango": {
+    "npk_ha": { "N": 150, "P2O5": 80, "K2O": 150 },
+    "npk_acre": { "N": 60.7, "P2O5": 32.4, "K2O": 60.7 },
+    "duration_days": 365,
+    "fym_t_ha": 50,
+    "fym_t_acre": 20.2,
+    "schedule": [
+      {
+        "day": 0,
+        "stage": "post_harvest_jun_jul",
+        "description": "Full P + 1/2 N + 1/2 K + FYM (June–July, post-harvest)",
+        "fertilizers": [
+          { "name": "DAP", "qty_kg_ha": 174, "qty_kg_acre": 70.4 },
+          { "name": "Urea", "qty_kg_ha": 81, "qty_kg_acre": 32.8 },
+          { "name": "MOP", "qty_kg_ha": 125, "qty_kg_acre": 50.6 },
+          { "name": "FYM", "qty_t_ha": 50, "qty_t_acre": 20.2 }
+        ]
+      },
+      {
+        "day": 180,
+        "stage": "pre_flowering_dec_jan",
+        "description": "Remaining 1/2 N + 1/2 K (December–January, pre-flower)",
+        "fertilizers": [
+          { "name": "Urea", "qty_kg_ha": 81, "qty_kg_acre": 32.8 },
+          { "name": "MOP", "qty_kg_ha": 125, "qty_kg_acre": 50.6 }
+        ]
+      }
+    ],
+    "note": "Apply in 1 m ring basins under canopy drip-zone. Withhold irrigation Oct–Nov to induce flowering. Boron spray (0.1%) at panicle emergence improves fruit set."
+  },
+  "apple": {
+    "npk_ha": { "N": 120, "P2O5": 60, "K2O": 120 },
+    "npk_acre": { "N": 48.6, "P2O5": 24.3, "K2O": 48.6 },
+    "duration_days": 365,
+    "fym_t_ha": 25,
+    "fym_t_acre": 10.1,
+    "schedule": [
+      {
+        "day": 0,
+        "stage": "dormancy_break_feb_mar",
+        "description": "Full P + 1/2 N + 1/2 K + FYM (February–March, bud swell)",
+        "fertilizers": [
+          { "name": "DAP", "qty_kg_ha": 130, "qty_kg_acre": 52.6 },
+          { "name": "Urea", "qty_kg_ha": 65, "qty_kg_acre": 26.3 },
+          { "name": "MOP", "qty_kg_ha": 100, "qty_kg_acre": 40.5 },
+          { "name": "FYM", "qty_t_ha": 25, "qty_t_acre": 10.1 }
+        ]
+      },
+      {
+        "day": 60,
+        "stage": "post_fruit_set_may",
+        "description": "1/4 N + 1/4 K (after June drop)",
+        "fertilizers": [
+          { "name": "Urea", "qty_kg_ha": 33, "qty_kg_acre": 13.4 },
+          { "name": "MOP", "qty_kg_ha": 50, "qty_kg_acre": 20.2 }
+        ]
+      },
+      {
+        "day": 120,
+        "stage": "fruit_development_jul",
+        "description": "Remaining 1/4 N + 1/4 K",
+        "fertilizers": [
+          { "name": "Urea", "qty_kg_ha": 33, "qty_kg_acre": 13.4 },
+          { "name": "MOP", "qty_kg_ha": 50, "qty_kg_acre": 20.2 }
+        ]
+      }
+    ],
+    "note": "For temperate apple (J&K/HP). Calcium spray (CaCl2 0.5%) at marble stage reduces bitter pit. Boron (0.3%) at pink bud improves fruit set."
+  },
+  "grapes": {
+    "npk_ha": { "N": 200, "P2O5": 100, "K2O": 200 },
+    "npk_acre": { "N": 81, "P2O5": 40.5, "K2O": 81 },
+    "duration_days": 365,
+    "fym_t_ha": 25,
+    "fym_t_acre": 10.1,
+    "schedule": [
+      {
+        "day": 0,
+        "stage": "basal_pre_pruning",
+        "description": "Full P + FYM (before first pruning, October)",
+        "fertilizers": [
+          { "name": "DAP", "qty_kg_ha": 217, "qty_kg_acre": 87.8 },
+          { "name": "FYM", "qty_t_ha": 25, "qty_t_acre": 10.1 }
+        ]
+      },
+      {
+        "day": 15,
+        "stage": "bud_break_post_pruning",
+        "description": "1/3 N + 1/3 K (after first pruning)",
+        "fertilizers": [
+          { "name": "Urea", "qty_kg_ha": 72, "qty_kg_acre": 29.1 },
+          { "name": "MOP", "qty_kg_ha": 111, "qty_kg_acre": 44.9 }
+        ]
+      },
+      {
+        "day": 60,
+        "stage": "bunch_initiation",
+        "description": "1/3 N + 1/3 K",
+        "fertilizers": [
+          { "name": "Urea", "qty_kg_ha": 72, "qty_kg_acre": 29.1 },
+          { "name": "MOP", "qty_kg_ha": 111, "qty_kg_acre": 44.9 }
+        ]
+      },
+      {
+        "day": 105,
+        "stage": "berry_development_second_pruning",
+        "description": "Remaining 1/3 N + 1/3 K (after second/fruiting pruning)",
+        "fertilizers": [
+          { "name": "Urea", "qty_kg_ha": 72, "qty_kg_acre": 29.1 },
+          { "name": "MOP", "qty_kg_ha": 111, "qty_kg_acre": 44.9 }
+        ]
+      }
+    ],
+    "note": "Thompson Seedless / local varieties in TN. Micronutrient spray — ZnSO4 (0.5%) + Borax (0.2%) at bud burst. Stop N 60 days before harvest."
+  },
+  "coffee": {
+    "npk_ha": { "N": 120, "P2O5": 90, "K2O": 120 },
+    "npk_acre": { "N": 48.6, "P2O5": 36.4, "K2O": 48.6 },
+    "duration_days": 365,
+    "fym_t_ha": 10,
+    "fym_t_acre": 4.0,
+    "schedule": [
+      {
+        "day": 0,
+        "stage": "pre_monsoon_apr_may",
+        "description": "Full P + 1/3 N + 1/3 K + FYM (April–May, before monsoon)",
+        "fertilizers": [
+          { "name": "DAP", "qty_kg_ha": 196, "qty_kg_acre": 79.4 },
+          { "name": "Urea", "qty_kg_ha": 43, "qty_kg_acre": 17.4 },
+          { "name": "MOP", "qty_kg_ha": 67, "qty_kg_acre": 27.1 },
+          { "name": "FYM", "qty_t_ha": 10, "qty_t_acre": 4.0 }
+        ]
+      },
+      {
+        "day": 60,
+        "stage": "mid_monsoon_jun_jul",
+        "description": "1/3 N + 1/3 K",
+        "fertilizers": [
+          { "name": "Urea", "qty_kg_ha": 43, "qty_kg_acre": 17.4 },
+          { "name": "MOP", "qty_kg_ha": 67, "qty_kg_acre": 27.1 }
+        ]
+      },
+      {
+        "day": 120,
+        "stage": "post_monsoon_sep_oct",
+        "description": "Remaining 1/3 N + 1/3 K",
+        "fertilizers": [
+          { "name": "Urea", "qty_kg_ha": 43, "qty_kg_acre": 17.4 },
+          { "name": "MOP", "qty_kg_ha": 67, "qty_kg_acre": 27.1 }
+        ]
+      }
+    ],
+    "note": "Arabica/Robusta under shade. Apply in ring basins under canopy. Borax 0.2% spray at flowering improves berry set."
+  }
+}

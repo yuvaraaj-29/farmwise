@@ -1,0 +1,9 @@
+{
+  "appId": "com.example.app",
+  "appName": "crop-recommendation-frontend",
+  "webDir": "build",
+  "server": {
+    "androidScheme": "http",
+    "cleartext": true
+  }
+}
