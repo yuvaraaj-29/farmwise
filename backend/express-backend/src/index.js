@@ -17,7 +17,7 @@ app.use(helmet());
 app.use(morgan('dev'));
 app.use(cors({ origin: process.env.CORS_ORIGIN || '*' }));
 app.use(express.json());
-const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/farmwise';
+const MONGO_URI = process.env.MONGO_URI;
 mongoose.connect(MONGO_URI)
   .then(() => console.log('[MongoDB] Connected'))
   .catch(err => console.warn(`[MongoDB] Not connected: ${err.message}. Auth routes will fail.`));
