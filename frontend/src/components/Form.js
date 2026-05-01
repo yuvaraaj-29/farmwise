@@ -17,56 +17,81 @@ function validate(form) {
   return errs;
 }
 async function fetchWeather(lat, lon) {
+  const weatherApiKey = process.env.REACT_APP_WEATHER_API_KEY;
+  const openWeatherApiKey = process.env.REACT_APP_OPEN_API_KEY;
+
+  console.log("WeatherAPI KEY:", weatherApiKey);
+  console.log("OpenWeather KEY:", openWeatherApiKey);
+
+  // --- Primary: WeatherAPI ---
   try {
-    const weatherApiKey = process.env.REACT_APP_WEATHER_API_KEY; 
     const url = `https://api.weatherapi.com/v1/current.json?key=${weatherApiKey}&q=${lat},${lon}`;
     const res = await fetch(url);
-    if (res.ok) {
-      const data = await res.json();
-      return {
-        temperature: data.current?.temp_c ?? null,
-        humidity: data.current?.humidity ?? null,
-        rainfall: data.current?.precip_mm ?? null,
-      };
-    }
-  } catch (_) {}
-  try {
-    const openWeatherApiKey =process.env.REACT_APP_OPEN_API_KEY; //penWeatherMap key
-    const url = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${openWeatherApiKey}&units=metric`;
-    const res = await fetch(url);
-    if (res.ok) {
-      const data = await res.json();
-      return {
-        temperature: data.main?.temp ?? null,
-        humidity: data.main?.humidity ?? null,
-        rainfall: data.rain?.['1h'] ?? 0, 
-      };
-    }
-  } catch (_) {}
 
-  throw new Error('Weather fetch failed');
-}
-async function fetchLocation() {
-  try {
-    const weatherApiKey = '64a95fa5610b4bf099642054260105'; 
-    const url = `https://api.weatherapi.com/v1/current.json?key=${weatherApiKey}&q=auto`;
-    const res = await fetch(url);
-    
-    if (res.ok) {
-      const data = await res.json();
-      const loc = data.location;
-      return {
-        lat: loc.lat,
-        lon: loc.lon,
-        city: loc.name || loc.region || loc.country || 'Unknown',
-        method: 'weatherapi'
-      };
+    if (!res.ok) {
+      const errData = await res.text();
+      throw new Error(`WeatherAPI failed: ${errData}`);
     }
+
+    const data = await res.json();
+
+    return {
+      temperature: data.current?.temp_c ?? null,
+      humidity: data.current?.humidity ?? null,
+      rainfall: data.current?.precip_mm ?? 0,
+    };
   } catch (err) {
-    console.error('WeatherAPI location fetch failed:', err);
+    console.error("WeatherAPI error:", err.message);
   }
 
-  return null;
+  // --- Fallback: OpenWeather ---
+  try {
+    const url = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${openWeatherApiKey}&units=metric`;
+    const res = await fetch(url);
+
+    if (!res.ok) {
+      const errData = await res.text();
+      throw new Error(`OpenWeather failed: ${errData}`);
+    }
+
+    const data = await res.json();
+
+    return {
+      temperature: data.main?.temp ?? null,
+      humidity: data.main?.humidity ?? null,
+      rainfall: data.rain?.["1h"] ?? 0,
+    };
+  } catch (err) {
+    console.error("OpenWeather error:", err.message);
+  }
+
+  throw new Error("Both weather APIs failed");
+}
+async function fetchLocation() {
+  const weatherApiKey = process.env.REACT_APP_WEATHER_API_KEY;
+
+  try {
+    const url = `https://api.weatherapi.com/v1/current.json?key=${weatherApiKey}&q=auto`;
+    const res = await fetch(url);
+
+    if (!res.ok) {
+      const errData = await res.text();
+      throw new Error(`Location fetch failed: ${errData}`);
+    }
+
+    const data = await res.json();
+    const loc = data.location;
+
+    return {
+      lat: loc.lat,
+      lon: loc.lon,
+      city: loc.name || loc.region || loc.country || "Unknown",
+      method: "weatherapi",
+    };
+  } catch (err) {
+    console.error("Location error:", err.message);
+    return null;
+  }
 }
 export default function Form({ onPredict, loading }) {
   const [form, setForm]                   = useState({ N: '', P: '', K: '', ph: '' });
