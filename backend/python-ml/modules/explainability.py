@@ -1,22 +1,5 @@
-"""
-explainability.py
------------------
-Provides two layers of explainability:
-
-1. Feature Importance (model-native):
-   - For Random Forest / Decision Tree: Gini-based importance
-   - For Logistic Regression: mean |weight| per feature
-   - For KNN / Naive Bayes: SHAP-style perturbation analysis
-
-2. LIME-style Rule Explanations:
-   - Human-readable insights based on feature values
-   - Domain-knowledge rules about each crop's requirements
-"""
-
 import math
-
 FEATURE_NAMES = ['N', 'P', 'K', 'temperature', 'humidity', 'ph', 'rainfall']
-
 FEATURE_LABELS = {
     'N':           'Nitrogen (N)',
     'P':           'Phosphorus (P)',
@@ -33,26 +16,13 @@ FEATURE_UNITS = {
     'ph': '', 'rainfall': 'mm/day',
 }
 
-
-# ─────────────────────────────────────────────────────────────────
-# 1.  Feature Importance
-# ─────────────────────────────────────────────────────────────────
-
 def _perturbation_importance(model, x_norm, n_samples=50, noise_frac=0.15):
-    """
-    Estimate feature importance by perturbation:
-    For each feature j, compute how much prediction probability changes
-    when x_j is perturbed by ±noise_frac of its value.
-
-    Used for KNN and Naive Bayes where model weights aren't directly accessible.
-    """
     try:
         base_proba = model.predict_proba(x_norm)
         base_cls   = max(base_proba, key=base_proba.get)
         base_conf  = base_proba[base_cls]
     except Exception:
         return [1.0 / len(x_norm)] * len(x_norm)
-
     importances = []
     for j in range(len(x_norm)):
         deltas = []
@@ -72,21 +42,13 @@ def _perturbation_importance(model, x_norm, n_samples=50, noise_frac=0.15):
 
 
 def get_feature_importance(model, x_norm, raw_x=None):
-    """
-    Returns a list of dicts:
-        [{feature, label, value, importance, rank}, ...]
-    sorted by importance descending.
-    """
-    # Get raw importances from model or fall back to perturbation
     raw_fi = model.feature_importances() if hasattr(model, 'feature_importances') else None
     if raw_fi is None:
         raw_fi = _perturbation_importance(model, x_norm)
 
-    # Normalise to [0, 1]
     total = sum(raw_fi) or 1.0
     norm_fi = [v / total for v in raw_fi]
 
-    # Map to feature names
     result = []
     for j, feat in enumerate(FEATURE_NAMES):
         raw_val = raw_x[j] if raw_x else None
@@ -103,11 +65,6 @@ def get_feature_importance(model, x_norm, raw_x=None):
         item['rank'] = rank
 
     return result
-
-
-# ─────────────────────────────────────────────────────────────────
-# 2.  LIME-style Domain Explanations
-# ─────────────────────────────────────────────────────────────────
 
 def _n_insight(N):
     if N > 100: return f"Very high Nitrogen ({N:.0f} kg/ha) — favours heavy feeders like rice, sugarcane, and banana."
@@ -156,10 +113,7 @@ def _rain_insight(R):
 
 
 def lime_explain(raw_x: list) -> list:
-    """
-    Returns a list of LIME-style insight dicts for human-readable explanation.
-    raw_x: [N, P, K, temperature, humidity, ph, rainfall]
-    """
+
     N, P, K, T, H, pH, R = raw_x
     insights = [
         {'factor': 'Nitrogen',    'insight': _n_insight(N)},
@@ -172,15 +126,7 @@ def lime_explain(raw_x: list) -> list:
     ]
     return insights
 
-
-# ─────────────────────────────────────────────────────────────────
-# 3.  Confidence Decomposition
-# ─────────────────────────────────────────────────────────────────
-
 def confidence_breakdown(model, x_norm):
-    """
-    Returns top-5 crop probabilities as percentage, plus confidence tier.
-    """
     try:
         proba = model.predict_proba(x_norm)
     except Exception:

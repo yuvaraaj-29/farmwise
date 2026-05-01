@@ -47,7 +47,8 @@ app.use('/api/weather', weatherRoutes);
 app.use('/api/fertilizer', fertilizerRoutes);
 app.use('/api/models', modelsRoutes);
 
-/* ---------------- HEALTH CHECK ---------------- */
+/* ----------------.
+ HEALTH CHECK ---------------- */
 app.get('/api/health', async (req, res) => {
   let mlStatus = 'unknown';
 

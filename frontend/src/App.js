@@ -77,15 +77,12 @@ function App() {
     setError('');
     setPage('landing');
   }, []);
-
   const handlePredict = useCallback(async (payload) => {
     setError('');
     setLoading(true);
     setResult(null);
     try {
       console.log(`[FarmWise] Sending prediction request for Location: ${payload.lat}, ${payload.lon}`);
-
-      // Ensure coordinates are present. If missing, the ML service defaults to Central India.
       if (!payload.lat || !payload.lon) {
         console.warn("[FarmWise] Geolocation missing in payload. Prediction may use fallback weather data.");
       }

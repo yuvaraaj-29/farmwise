@@ -17,9 +17,8 @@ function validate(form) {
   return errs;
 }
 async function fetchWeather(lat, lon) {
-  // Try WeatherAPI first
   try {
-    const weatherApiKey = process.env.REACT_APP_WEATHER_API_KEY; // WeatherAPI key
+    const weatherApiKey = process.env.REACT_APP_WEATHER_API_KEY; 
     const url = `http://api.weatherapi.com/v1/current.json?key=${weatherApiKey}&q=${lat},${lon}`;
     const res = await fetch(url);
     if (res.ok) {
@@ -31,8 +30,6 @@ async function fetchWeather(lat, lon) {
       };
     }
   } catch (_) {}
-
-  // Fallback to OpenWeatherMap
   try {
     const openWeatherApiKey =process.env.REACT_APP_OPEN_API_KEY; //penWeatherMap key
     const url = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${openWeatherApiKey}&units=metric`;
@@ -42,7 +39,7 @@ async function fetchWeather(lat, lon) {
       return {
         temperature: data.main?.temp ?? null,
         humidity: data.main?.humidity ?? null,
-        rainfall: data.rain?.['1h'] ?? 0, // Rainfall in last 1h, or 0 if none
+        rainfall: data.rain?.['1h'] ?? 0, 
       };
     }
   } catch (_) {}
@@ -50,16 +47,13 @@ async function fetchWeather(lat, lon) {
   throw new Error('Weather fetch failed');
 }
 async function fetchLocation() {
-  // Use WeatherAPI with auto IP detection to get location and weather in one call
   try {
-    const weatherApiKey = '64a95fa5610b4bf099642054260105'; // WeatherAPI key
-    // Use current.json with q=auto to auto-detect location from user's IP
+    const weatherApiKey = '64a95fa5610b4bf099642054260105'; 
     const url = `http://api.weatherapi.com/v1/current.json?key=${weatherApiKey}&q=auto`;
     const res = await fetch(url);
     
     if (res.ok) {
       const data = await res.json();
-      // WeatherAPI returns location data in data.location
       const loc = data.location;
       return {
         lat: loc.lat,

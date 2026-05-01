@@ -7,10 +7,8 @@ const STAGE_LABELS = {
   pre_flowering: { label: 'Pre-Flowering' },
   square_formation: { label: 'Square Formation' },
 };
-
 function StageCard({ stage, index, isLast }) {
   const [expanded, setExpanded] = useState(index === 0);
-
   const stageInfo = STAGE_LABELS[stage.stage] || { 
     label: stage.stage 
   };
@@ -42,8 +40,6 @@ function StageCard({ stage, index, isLast }) {
             }} />
           )}
         </div>
-
-        {/* Main Card */}
         <div style={{
           flex: 1,
           border: '1px solid #ccc',
@@ -51,7 +47,6 @@ function StageCard({ stage, index, isLast }) {
           backgroundColor: 'white',
           overflow: 'hidden'
         }}>
-          {/* Header */}
           <button
             onClick={() => setExpanded(!expanded)}
             style={{
@@ -67,7 +62,6 @@ function StageCard({ stage, index, isLast }) {
             }}
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-              {/* Icon Span Removed */}
               <div>
                 <div style={{ fontWeight: 'bold', fontSize: '16px' }}>
                   {stageInfo.label}
@@ -77,7 +71,6 @@ function StageCard({ stage, index, isLast }) {
                 </div>
               </div>
             </div>
-
             <span style={{ 
               fontSize: '24px', 
               fontWeight: 'bold',
@@ -87,8 +80,6 @@ function StageCard({ stage, index, isLast }) {
               {expanded ? '−' : '+'}
             </span>
           </button>
-
-          {/* Expanded Content */}
           {expanded && (
             <div style={{ padding: '0 15px 15px 15px' }}>
               {stage.fertilizers.map((f, i) => (

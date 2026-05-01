@@ -1,12 +1,3 @@
-"""
-ml_service.py
--------------
-FastAPI ML microservice for FarmWise.
-Handles prediction, explainability, fertilizer, weather, and auth.
-
-Run: uvicorn ml_service:app --host 0.0.0.0 --port 8000
-"""
-
 import os
 import sys
 import pickle
@@ -15,8 +6,6 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import Optional
-
-# Ensure manual_models is importable before unpickling
 sys.path.insert(0, os.path.dirname(__file__))
 import manual_models
 from manual_models import (
@@ -26,43 +15,30 @@ from manual_models import (
 from modules.weather import get_weather
 from modules.explainability import lime_explain, get_feature_importance
 from modules.fertilizer import get_fertilizer_recommendation
-
 class PickleRedirectUnpickler(pickle.Unpickler):
     def find_class(self, module, name):
         if module == '__main__':
             module = 'manual_models'
         return super().find_class(module, name)
-
 app = FastAPI(title="FarmWise ML Service", version="2.0.0")
-
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
 FEATURE_NAMES = ['N', 'P', 'K', 'temperature', 'humidity', 'ph', 'rainfall']
-
-# ── Load models ──────────────────────────────────────────────────────────────
 BASE = os.path.dirname(__file__)
-
 def _load_model(filename):
     path = os.path.join(BASE, 'models', filename)
     with open(path, 'rb') as fh:
         return PickleRedirectUnpickler(fh).load()
-
 model  = _load_model('best_model.pkl')
 le     = _load_model('label_encoder.pkl')
 scaler = _load_model('scaler.pkl')
-
 model_name = type(model).__name__
 print(f"[FarmWise ML] Model loaded: {model_name}")
 print(f"[FarmWise ML] Crops supported: {list(le.classes_)}")
-
-
-# ── Pydantic Schemas ─────────────────────────────────────────────────────────
-
 class PredictRequest(BaseModel):
     N: float
     P: float
@@ -73,20 +49,14 @@ class PredictRequest(BaseModel):
     temperature: Optional[float] = None
     humidity: Optional[float] = None
     rainfall: Optional[float] = None
-
 class FertilizerRequest(BaseModel):
     crop: str
     N: float = 0.0
     P: float = 0.0
     K: float = 0.0
-
 class WeatherRequest(BaseModel):
     lat: float
     lon: float
-
-
-# ── Probability helpers ──────────────────────────────────────────────────────
-
 def _predict_proba(mdl, X_scaled: np.ndarray) -> dict:
     crops = list(le.classes_)
 
@@ -99,7 +69,6 @@ def _predict_proba(mdl, X_scaled: np.ndarray) -> dict:
         total = len(votes)
         return {crop: round(vote_map.get(enc, 0) / total, 4)
                 for enc, crop in enumerate(crops)}
-
     if isinstance(mdl, ManualLogisticRegression):
         Z = X_scaled @ mdl.W + mdl.b
         Z_shift = Z - np.max(Z, axis=1, keepdims=True)
@@ -107,7 +76,6 @@ def _predict_proba(mdl, X_scaled: np.ndarray) -> dict:
         P = exp_Z / np.sum(exp_Z, axis=1, keepdims=True)
         return {le.inverse_transform([cls])[0]: round(float(P[0, i]), 4)
                 for i, cls in enumerate(mdl.classes_)}
-
     if isinstance(mdl, ManualKNN):
         dists = np.sqrt(np.sum((mdl.X_train - X_scaled[0]) ** 2, axis=1))
         k_idx = np.argsort(dists)[:mdl.k]
@@ -117,7 +85,6 @@ def _predict_proba(mdl, X_scaled: np.ndarray) -> dict:
             vote_map[v] = vote_map.get(v, 0) + 1
         return {crop: round(vote_map.get(enc, 0) / mdl.k, 4)
                 for enc, crop in enumerate(crops)}
-
     if isinstance(mdl, ManualSVM):
         scores_list = []
         for cls in mdl.classes_:
@@ -143,18 +110,15 @@ def _predict_proba(mdl, X_scaled: np.ndarray) -> dict:
         return {le.inverse_transform([cls])[0]: round(float(P[0, i]), 4)
                 for i, cls in enumerate(mdl.classes_)}
 
-    # Decision tree / fallback
     pred_encoded = int(mdl.predict(X_scaled)[0])
     crop = le.inverse_transform([pred_encoded])[0]
     return {c: (1.0 if c == crop else 0.0) for c in crops}
-
 
 def _permutation_importance(mdl, X_scaled: np.ndarray) -> list:
     raw_pred = np.atleast_1d(np.array(mdl.predict(X_scaled)).flatten())
     base_pred = le.inverse_transform(raw_pred)[0]
     proba = _predict_proba(mdl, X_scaled)
     base_conf = proba.get(base_pred, 1.0)
-
     importances = []
     for j in range(X_scaled.shape[1]):
         deltas = []
@@ -167,7 +131,6 @@ def _permutation_importance(mdl, X_scaled: np.ndarray) -> list:
 
     total = sum(importances) or 1.0
     return [v / total for v in importances]
-
 
 def _feature_importance_list(mdl, X_scaled: np.ndarray, raw_x: list) -> list:
     LABELS = {
@@ -201,10 +164,6 @@ def _feature_importance_list(mdl, X_scaled: np.ndarray, raw_x: list) -> list:
     for rank, item in enumerate(result, 1):
         item['rank'] = rank
     return result
-
-
-# ── Endpoints ────────────────────────────────────────────────────────────────
-
 @app.get("/health")
 def health():
     return {
@@ -213,13 +172,9 @@ def health():
         "crops": list(le.classes_),
     }
 
-
 @app.post("/predict")
 def predict(body: PredictRequest):
     try:
-        # --- Location: use provided lat/lon or fallback to India center ---
-        # IMPORTANT: default to India center (20.59, 78.96) only if no location given.
-        # If a valid lat/lon is provided, ALWAYS use it for weather.
         lat = body.lat if body.lat is not None else 20.59
         lon = body.lon if body.lon is not None else 78.96
 
