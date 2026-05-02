@@ -86,19 +86,37 @@ function getGPS() {
 
 // ---------------- IP FALLBACK ----------------
 async function getIPLocation() {
-  try {
-    const res = await fetch('https://ipapi.co/json/');
-    const data = await res.json();
+  // Try multiple free providers in order — ipapi.co rate-limits to ~45 req/hour
+  const providers = [
+    async () => {
+      const res = await fetch('https://ipapi.co/json/');
+      const d = await res.json();
+      if (!d.latitude) throw new Error('no coords');
+      return { lat: d.latitude, lon: d.longitude, city: d.city || '' };
+    },
+    async () => {
+      const res = await fetch('https://ip-api.com/json/?fields=lat,lon,city,status');
+      const d = await res.json();
+      if (d.status !== 'success') throw new Error('failed');
+      return { lat: d.lat, lon: d.lon, city: d.city || '' };
+    },
+    async () => {
+      const res = await fetch('https://freeipapi.com/api/json');
+      const d = await res.json();
+      if (!d.latitude) throw new Error('no coords');
+      return { lat: d.latitude, lon: d.longitude, city: d.cityName || '' };
+    },
+  ];
 
-    return {
-      lat: data.latitude,
-      lon: data.longitude,
-      method: "IP",
-      city: data.city || ""
-    };
-  } catch {
-    return null;
+  for (const provider of providers) {
+    try {
+      const result = await provider();
+      return { ...result, method: 'IP' };
+    } catch {
+      // try next provider
+    }
   }
+  return null;
 }
 
 // ---------------- MAIN COMPONENT ----------------
@@ -108,6 +126,7 @@ export default function Form({ onPredict, loading }) {
 
   const [lat, setLat] = useState(null);
   const [lon, setLon] = useState(null);
+  const [locCity, setLocCity] = useState('');
 
   const [locStatus, setLocStatus] = useState("idle");
   const [locMethod, setLocMethod] = useState("");
@@ -143,6 +162,7 @@ export default function Form({ onPredict, loading }) {
       setLon(gps.lon);
       setLocMethod("GPS");
       setLocStatus("detected");
+      setLocCity('');  // city will appear in ResultCard via backend reverse-geocode
       loadWeather(gps.lat, gps.lon);
       return;
     } catch {
@@ -156,6 +176,7 @@ export default function Form({ onPredict, loading }) {
       setLat(ip.lat);
       setLon(ip.lon);
       setLocMethod("IP");
+      setLocCity(ip.city || '');
       setLocStatus("detected");
       loadWeather(ip.lat, ip.lon);
     } else {
@@ -191,8 +212,8 @@ export default function Form({ onPredict, loading }) {
     locStatus === "detecting"
       ? "📡 Detecting location..."
       : locStatus === "detected"
-      ? `📍 ${locMethod} Location: ${lat?.toFixed(4)}, ${lon?.toFixed(4)}`
-      : "❌ Location unavailable";
+      ? `📍 ${locMethod}: ${locCity ? locCity + ' ' : ''}(${lat?.toFixed(4)}, ${lon?.toFixed(4)})`
+      : "❌ Location unavailable — weather will use regional averages";
 
   return (
     <div className="form-wrapper">

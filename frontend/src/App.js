@@ -83,7 +83,7 @@ function App() {
     setResult(null);
     try {
       console.log(`[FarmWise] Sending prediction request for Location: ${payload.lat}, ${payload.lon}`);
-      if (!payload.lat || !payload.lon) {
+      if (payload.lat == null || payload.lon == null) {
         console.warn("[FarmWise] Geolocation missing in payload. Prediction may use fallback weather data.");
       }
 

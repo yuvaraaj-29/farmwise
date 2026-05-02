@@ -1,6 +1,8 @@
 import os
 import sys
+import json
 import pickle
+import urllib.request
 import numpy as np
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -15,6 +17,28 @@ from manual_models import (
 from modules.weather import get_weather
 from modules.explainability import lime_explain, get_feature_importance
 from modules.fertilizer import get_fertilizer_recommendation
+
+def _reverse_geocode(lat: float, lon: float) -> str:
+    """Return city name from Open-Meteo geocoding (no API key needed)."""
+    try:
+        url = (
+            f"https://nominatim.openstreetmap.org/reverse"
+            f"?lat={lat}&lon={lon}&format=json&zoom=10"
+        )
+        req = urllib.request.Request(
+            url, headers={'User-Agent': 'FarmWise/2.0 (crop-recommendation)'}
+        )
+        with urllib.request.urlopen(req, timeout=4) as resp:
+            data = json.loads(resp.read().decode('utf-8'))
+        addr = data.get('address', {})
+        city = (
+            addr.get('city') or addr.get('town') or
+            addr.get('village') or addr.get('county') or
+            addr.get('state_district') or addr.get('state') or ''
+        )
+        return city
+    except Exception:
+        return ''
 class PickleRedirectUnpickler(pickle.Unpickler):
     def find_class(self, module, name):
         if module == '__main__':
@@ -180,6 +204,9 @@ def predict(body: PredictRequest):
 
         weather_raw = get_weather(lat, lon)
 
+        # Reverse-geocode to get city name (best-effort, empty string on failure)
+        city = _reverse_geocode(lat, lon)
+
         raw_values = [
             float(body.N),
             float(body.P),
@@ -216,6 +243,11 @@ def predict(body: PredictRequest):
             'confidence':      round(top_prob * 100, 1),
             'confidence_tier': tier,
             'top_crops':       top_crops,
+            'location': {
+                'lat':  round(lat, 4),
+                'lon':  round(lon, 4),
+                'city': city,
+            },
             'weather': {
                 'temperature': weather_raw['temperature'],
                 'humidity':    weather_raw['humidity'],

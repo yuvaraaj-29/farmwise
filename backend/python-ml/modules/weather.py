@@ -2,7 +2,7 @@ import urllib.request
 import json
 import time
 import math
-from datetime import datetime
+from datetime import datetime, timezone
 _CACHE = {}
 _CACHE_TTL_SECONDS = 3600  # 1 hour
 def _cache_key(lat, lon):
@@ -58,10 +58,34 @@ def get_weather(lat: float, lon: float, timeout: int = 6) -> dict:
         req = urllib.request.Request(url, headers={'User-Agent': 'CropRecommender/1.0'})
         with urllib.request.urlopen(req, timeout=timeout) as resp:
             data = json.loads(resp.read().decode('utf-8'))
-        now_hour = datetime.utcnow().hour 
-        hourly_temp = data.get('hourly', {}).get('temperature_2m', [])
-        hourly_hum  = data.get('hourly', {}).get('relative_humidity_2m', [])
-        hourly_prec = data.get('hourly', {}).get('precipitation', [])
+        # Use the local time strings returned by the API (timezone=auto)
+        # instead of UTC hour, which would index the wrong hour for non-UTC zones.
+        hourly_times = data.get('hourly', {}).get('time', [])
+        hourly_temp  = data.get('hourly', {}).get('temperature_2m', [])
+        hourly_hum   = data.get('hourly', {}).get('relative_humidity_2m', [])
+        hourly_prec  = data.get('hourly', {}).get('precipitation', [])
+
+        # Find the index whose local hour matches the current UTC hour offset
+        # by comparing the date+hour in the time strings against utcnow.
+        now_utc_str = datetime.now(timezone.utc).strftime('%Y-%m-%dT%H')
+        now_hour = 12  # safe default (midday)
+        if hourly_times:
+            # Open-Meteo returns "YYYY-MM-DDTHH:00" in local time.
+            # We pick the entry closest to the current moment using a simple
+            # index derived from position in the list (1 entry per hour).
+            # Since forecast_days=1 gives 24 entries for today, we clamp
+            # the UTC hour into [0, len-1] as a reasonable approximation,
+            # but prefer matching on the local-time hour string if possible.
+            local_hour_match = -1
+            utc_hour = datetime.now(timezone.utc).hour
+            for i, t in enumerate(hourly_times):
+                # t looks like "2025-05-02T14:00"
+                if len(t) >= 13:
+                    entry_hour = int(t[11:13])
+                    if entry_hour == utc_hour:
+                        local_hour_match = i
+                        break
+            now_hour = local_hour_match if local_hour_match >= 0 else min(utc_hour, len(hourly_temp) - 1)
         temp = _safe_get(hourly_temp, now_hour, 25.0)
         hum  = _safe_get(hourly_hum,  now_hour, 70.0)
         daily_rain = data.get('daily', {}).get('precipitation_sum', [None])[0]

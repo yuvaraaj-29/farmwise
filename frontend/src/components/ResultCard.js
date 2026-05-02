@@ -12,12 +12,12 @@ export default function ResultCard({ data }) {
   const { crop, confidence, confidence_tier, top_crops, weather } = data;
   const emoji = CROP_EMOJI[crop?.toLowerCase()] || '🌱';
   const tierColor = {
-    'Very High': '#0a100c',
-    'High':      '#161d2d',
-    'Medium':    '#1e170f',
-    'Low':       '#1e0b0b',
-    'Very Low':  '#1f0909',
-  }[confidence_tier] || '#070b13';
+    'Very High': '#16a34a',
+    'High':      '#2563eb',
+    'Moderate':  '#d97706',
+    'Low':       '#dc2626',
+    'Very Low':  '#7c3aed',
+  }[confidence_tier] || '#374151';
   return (
     <div className="card result-card">
       <h3 className="card-title">Recommended Crop</h3>
