@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-
+ 
 // ─── Field definitions ────────────────────────────────────────────────────────
 const FIELDS = [
   { name: 'N',  label: 'Nitrogen (N)',   unit: 'mg/kg', min: 0,   max: 140, step: 1,   placeholder: '0–140'   },
@@ -7,7 +7,32 @@ const FIELDS = [
   { name: 'K',  label: 'Potassium (K)',  unit: 'mg/kg', min: 5,   max: 205, step: 1,   placeholder: '5–205'   },
   { name: 'ph', label: 'Soil pH',        unit: '',       min: 3.5, max: 9.9, step: 0.1, placeholder: '3.5–9.9' },
 ];
-
+ 
+// ─── Manual Tamil Nadu city coordinates ──────────────────────────────────────
+// Predefined list; no API call needed for these cities
+const TN_CITIES = [
+  { name: 'Sivakasi',      state: 'Tamil Nadu', lat: 9.4533,  lon: 77.7989 },
+  { name: 'Virudhunagar',  state: 'Tamil Nadu', lat: 9.5870,  lon: 77.9524 },
+  { name: 'Madurai',       state: 'Tamil Nadu', lat: 9.9252,  lon: 78.1198 },
+  { name: 'Coimbatore',    state: 'Tamil Nadu', lat: 11.0168, lon: 76.9558 },
+  { name: 'Chennai',       state: 'Tamil Nadu', lat: 13.0827, lon: 80.2707 },
+  { name: 'Trichy',        state: 'Tamil Nadu', lat: 10.7905, lon: 78.7047 },
+  { name: 'Salem',         state: 'Tamil Nadu', lat: 11.6643, lon: 78.1460 },
+  { name: 'Tirunelveli',   state: 'Tamil Nadu', lat: 8.7139,  lon: 77.7567 },
+  { name: 'Erode',         state: 'Tamil Nadu', lat: 11.3410, lon: 77.7172 },
+  { name: 'Vellore',       state: 'Tamil Nadu', lat: 12.9165, lon: 79.1325 },
+  { name: 'Thoothukudi',   state: 'Tamil Nadu', lat: 8.7642,  lon: 78.1348 },
+  { name: 'Dindigul',      state: 'Tamil Nadu', lat: 10.3673, lon: 77.9803 },
+  { name: 'Thanjavur',     state: 'Tamil Nadu', lat: 10.7870, lon: 79.1378 },
+  { name: 'Tiruppur',      state: 'Tamil Nadu', lat: 11.1085, lon: 77.3411 },
+  { name: 'Nagercoil',     state: 'Tamil Nadu', lat: 8.1780,  lon: 77.4346 },
+  { name: 'Karur',         state: 'Tamil Nadu', lat: 10.9601, lon: 78.0766 },
+  { name: 'Kumbakonam',    state: 'Tamil Nadu', lat: 10.9617, lon: 79.3881 },
+  { name: 'Ramanathapuram',state: 'Tamil Nadu', lat: 9.3639,  lon: 78.8395 },
+  { name: 'Pudukkottai',   state: 'Tamil Nadu', lat: 10.3833, lon: 78.8001 },
+  { name: 'Namakkal',      state: 'Tamil Nadu', lat: 11.2189, lon: 78.1674 },
+];
+ 
 // ─── Validation ───────────────────────────────────────────────────────────────
 function validate(form) {
   const errs = {};
@@ -19,7 +44,7 @@ function validate(form) {
   });
   return errs;
 }
-
+ 
 // ─── GPS ──────────────────────────────────────────────────────────────────────
 function getGPS() {
   return new Promise((resolve, reject) => {
@@ -31,9 +56,8 @@ function getGPS() {
     );
   });
 }
-
+ 
 // ─── City/Pincode → lat,lon using OpenWeatherMap Geocoding API ────────────────
-// Uses your existing REACT_APP_OPEN_API_KEY — no extra key needed
 async function searchCityCoords(query) {
   const key = process.env.REACT_APP_OPEN_API_KEY;
   if (!key) throw new Error('REACT_APP_OPEN_API_KEY not set');
@@ -43,12 +67,11 @@ async function searchCityCoords(query) {
   if (!r.ok) throw new Error(`Geocoding error ${r.status}`);
   const results = await r.json();
   if (!results.length) throw new Error('City not found');
-  return results; // [{ name, lat, lon, state, country }]
+  return results;
 }
-
+ 
 // ─── Weather ──────────────────────────────────────────────────────────────────
 async function fetchWeatherPreview(lat, lon) {
-  // Primary: OpenWeatherMap (your paid key)
   const owKey = process.env.REACT_APP_OPEN_API_KEY;
   if (owKey) {
     try {
@@ -67,7 +90,6 @@ async function fetchWeatherPreview(lat, lon) {
       console.warn('[Weather] OWM failed:', e.message);
     }
   }
-  // Fallback: Open-Meteo (free)
   try {
     const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,precipitation&daily=precipitation_sum&timezone=auto&forecast_days=1`;
     const d = await (await fetch(url)).json();
@@ -80,7 +102,7 @@ async function fetchWeatherPreview(lat, lon) {
     };
   } catch { return null; }
 }
-
+ 
 // ─── Inline styles ────────────────────────────────────────────────────────────
 const S = {
   formWrapper: {
@@ -111,7 +133,7 @@ const S = {
   locTextDetecting: { fontSize: '0.85rem', fontWeight: '600', color: '#92400e', margin: '0 0 0.5rem' },
   locTextError:     { fontSize: '0.85rem', fontWeight: '600', color: '#dc2626', margin: '0 0 0.5rem' },
   locCoords:        { fontSize: '0.70rem', color: '#6b7280', margin: '0 0 0.5rem', fontStyle: 'italic' },
-
+ 
   btnSecondary: {
     background: 'transparent',
     border: '1.5px solid #16a34a',
@@ -123,7 +145,7 @@ const S = {
     cursor: 'pointer',
     fontWeight: '600',
   },
-
+ 
   // GPS denied box
   gpsDeniedBox: {
     marginTop: '0.75rem',
@@ -132,9 +154,53 @@ const S = {
     borderRadius: '10px',
     padding: '0.75rem 0.9rem',
   },
-  gpsDeniedTitle: { fontSize: '0.78rem', fontWeight: '700', color: '#9a3412', margin: '0 0 0.5rem' },
-  gpsDeniedHint:  { fontSize: '0.70rem', color: '#9a3412', margin: '0 0 0.6rem' },
-
+  gpsDeniedTitle: { fontSize: '0.78rem', fontWeight: '700', color: '#9a3412', margin: '0 0 0.4rem' },
+  gpsDeniedHint:  { fontSize: '0.70rem', color: '#9a3412', margin: '0 0 0.75rem' },
+ 
+  // ── Quick-select Tamil Nadu city chips ──
+  quickLabel: {
+    fontSize: '0.72rem',
+    fontWeight: '700',
+    color: '#6b7280',
+    textTransform: 'uppercase',
+    letterSpacing: '0.05em',
+    margin: '0 0 0.4rem',
+  },
+  chipGrid: {
+    display: 'flex',
+    flexWrap: 'wrap',
+    gap: '0.35rem',
+    marginBottom: '0.85rem',
+  },
+  chip: {
+    background: '#fff',
+    border: '1.5px solid #d1fae5',
+    borderRadius: '999px',
+    padding: '0.25rem 0.65rem',
+    fontSize: '0.76rem',
+    fontFamily: 'inherit',
+    fontWeight: '600',
+    color: '#166534',
+    cursor: 'pointer',
+    transition: 'background 0.15s, border-color 0.15s',
+    lineHeight: 1.4,
+  },
+  chipActive: {
+    background: '#16a34a',
+    border: '1.5px solid #16a34a',
+    color: '#fff',
+  },
+ 
+  // Divider between quick chips and search
+  divider: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '0.5rem',
+    margin: '0.6rem 0',
+  },
+  dividerLine: { flex: 1, height: '1px', background: '#e5e7eb' },
+  dividerText: { fontSize: '0.68rem', color: '#9ca3af', fontWeight: '600', whiteSpace: 'nowrap' },
+ 
   // City search input
   cityInputRow: { display: 'flex', gap: '0.4rem' },
   cityInput: {
@@ -159,8 +225,7 @@ const S = {
     cursor: 'pointer',
     whiteSpace: 'nowrap',
   },
-
-  // Search results dropdown
+ 
   cityDropdown: {
     marginTop: '0.4rem',
     background: '#fff',
@@ -181,7 +246,7 @@ const S = {
   },
   cityItemState: { fontSize: '0.70rem', color: '#6b7280' },
   citySearchErr: { fontSize: '0.72rem', color: '#dc2626', marginTop: '0.3rem', fontWeight: '600' },
-
+ 
   // Soil form
   form:      { display: 'flex', flexDirection: 'column', gap: '0.9rem' },
   formGroup: { display: 'flex', flexDirection: 'column', gap: '0.25rem' },
@@ -209,8 +274,7 @@ const S = {
     cursor: 'pointer',
     marginTop: '0.25rem',
   },
-
-  // Weather
+ 
   weatherBox: {
     marginTop: '1.1rem',
     background: '#eff6ff',
@@ -228,29 +292,30 @@ const S = {
   },
   loading: { fontSize: '0.82rem', color: '#6b7280', textAlign: 'center', margin: 0 },
 };
-
+ 
 // ─── Component ────────────────────────────────────────────────────────────────
 export default function Form({ onPredict, loading }) {
   const [form, setForm] = useState({ N: '', P: '', K: '', ph: '' });
   const [errs, setErrs] = useState({});
-
+ 
   // Location
   const [location,    setLocation]    = useState(null);
   const [isDetecting, setIsDetecting] = useState(false);
   const [gpsDenied,   setGpsDenied]   = useState(false);
-
-  // City search (shown only when GPS denied)
+ 
+  // City search
   const [cityQuery,     setCityQuery]     = useState('');
   const [cityResults,   setCityResults]   = useState([]);
   const [citySearching, setCitySearching] = useState(false);
   const [cityErr,       setCityErr]       = useState('');
-
+  const [activeChip,    setActiveChip]    = useState(null); // name of selected quick-city
+ 
   // Weather
   const [weather,        setWeather]        = useState(null);
   const [weatherLoading, setWeatherLoading] = useState(false);
-
+ 
   useEffect(() => { detectLocation(); }, []);
-
+ 
   // ── GPS ──────────────────────────────────────────────────────────────────
   const detectLocation = async () => {
     setIsDetecting(true);
@@ -260,45 +325,69 @@ export default function Form({ onPredict, loading }) {
     setCityQuery('');
     setCityResults([]);
     setCityErr('');
+    setActiveChip(null);
     try {
       const loc = await getGPS();
       setLocation(loc);
       loadWeather(loc.lat, loc.lon);
     } catch {
-      // GPS denied → show city search box, never call IP API
       setGpsDenied(true);
     } finally {
       setIsDetecting(false);
     }
   };
-
+ 
+  // ── Quick-select: pick a manual TN city chip ──────────────────────────────
+  const handleChipPick = city => {
+    const loc = {
+      lat: city.lat,
+      lon: city.lon,
+      city: `${city.name}, ${city.state}`,
+      method: 'Manual selection',
+    };
+    setLocation(loc);
+    setActiveChip(city.name);
+    setGpsDenied(false);
+    setCityResults([]);
+    setCityQuery('');
+    setCityErr('');
+    loadWeather(city.lat, city.lon);
+  };
+ 
   // ── City search using OpenWeatherMap geocoding ────────────────────────────
   const handleCitySearch = async () => {
     if (!cityQuery.trim()) return;
     setCitySearching(true);
     setCityErr('');
     setCityResults([]);
+    setActiveChip(null);
     try {
       const results = await searchCityCoords(cityQuery.trim());
       setCityResults(results);
     } catch (e) {
       setCityErr(e.message === 'City not found'
-        ? 'City not found. Try a different name (e.g. Sivakasi, Virudhunagar).'
+        ? 'City not found. Try a different name.'
         : 'Search failed. Check your internet connection.');
     } finally {
       setCitySearching(false);
     }
   };
-
+ 
   const handleCityPick = city => {
-    const loc = { lat: city.lat, lon: city.lon, city: `${city.name}, ${city.state || city.country}`, method: 'City search' };
+    const loc = {
+      lat: city.lat,
+      lon: city.lon,
+      city: `${city.name}, ${city.state || city.country}`,
+      method: 'City search',
+    };
     setLocation(loc);
     setGpsDenied(false);
     setCityResults([]);
     setCityQuery('');
+    setActiveChip(null);
     loadWeather(city.lat, city.lon);
   };
-
+ 
   // ── Weather ───────────────────────────────────────────────────────────────
   const loadWeather = async (lat, lon) => {
     setWeatherLoading(true);
@@ -307,84 +396,79 @@ export default function Form({ onPredict, loading }) {
     setWeather(w);
     setWeatherLoading(false);
   };
-
+ 
   // ── Form ──────────────────────────────────────────────────────────────────
   const handleChange = e => {
     setForm(f => ({ ...f, [e.target.name]: e.target.value }));
     setErrs(prev => { const n = { ...prev }; delete n[e.target.name]; return n; });
   };
-
+ 
   const handleSubmit = e => {
     e.preventDefault();
     const errors = validate(form);
     if (Object.keys(errors).length) return setErrs(errors);
     const payload = { N: +form.N, P: +form.P, K: +form.K, ph: +form.ph };
     if (location) { payload.lat = location.lat; payload.lon = location.lon; }
-    if (weather)  { payload.temperature = weather.temperature; payload.humidity = weather.humidity; payload.rainfall = weather.rainfall; }
+    if (weather)  {
+      payload.temperature = weather.temperature;
+      payload.humidity    = weather.humidity;
+      payload.rainfall    = weather.rainfall;
+    }
     onPredict(payload);
   };
-
-  // ── locText / locCls (your original variable names) ───────────────────────
-  const locText = isDetecting
-    ? '📡 Detecting GPS…'
-    : gpsDenied
-      ? '❌ GPS denied — enter your city below'
-      : location
-        ? `📍 ${location.city}`
-        : '—';
-
-  const locCls = isDetecting ? 'detecting' : gpsDenied ? 'error' : location ? 'success' : '';
-
+ 
+  // ── locText styles ────────────────────────────────────────────────────────
   const locTextStyle = isDetecting
     ? S.locTextDetecting
     : gpsDenied
       ? S.locTextError
       : S.locText;
-
+ 
+  const locText = isDetecting
+    ? '📡 Detecting GPS…'
+    : gpsDenied
+      ? '❌ GPS denied — select your city below'
+      : location
+        ? `📍 ${location.city}`
+        : '—';
+ 
   // ──────────────────────────────────────────────────────────────────────────
   return (
-    <div className="form-wrapper" style={S.formWrapper}>
-
-      <div className="card form-card" style={S.card}>
-
-        <h2 className="title" style={S.title}>🌱 FarmWise Crop Predictor</h2>
-
+    <div style={S.formWrapper}>
+      <div style={S.card}>
+ 
+        <h2 style={S.title}>🌱 FarmWise Crop Predictor</h2>
+ 
         {/* LOCATION */}
-        <div className="location-box" style={S.locationBox}>
-
-          <p className={`loc-text ${locCls}`} style={locTextStyle}>{locText}</p>
-
-          {/* Show coords when detected */}
+        <div style={S.locationBox}>
+ 
+          <p style={locTextStyle}>{locText}</p>
+ 
           {location && !isDetecting && (
             <p style={S.locCoords}>
               {location.lat.toFixed(5)}, {location.lon.toFixed(5)} via {location.method}
             </p>
           )}
-
+ 
           <button
             type="button"
-            className="btn-secondary"
             style={S.btnSecondary}
             onClick={detectLocation}
             disabled={isDetecting || loading}
           >
             🔄 Refresh Location
           </button>
-
-          {/* ── GPS DENIED: city search box appears here ── */}
+ 
+          {/* ── GPS DENIED: manual city picker ── */}
           {gpsDenied && (
             <div style={S.gpsDeniedBox}>
-
-              <p style={S.gpsDeniedTitle}>📍 Enter your city or district name</p>
-              <p style={S.gpsDeniedHint}>
-                GPS is off. IP location is unreliable in India — type your city for accurate weather.
-              </p>
-
+ 
+              {/* Search input */}
               <div style={S.cityInputRow}>
                 <input
                   style={S.cityInput}
                   type="text"
-                  placeholder="e.g. Sivakasi, Madurai, Coimbatore…"
+                  placeholder="e.g. Villupuram, Karaikudi…"
                   value={cityQuery}
                   onChange={e => { setCityQuery(e.target.value); setCityErr(''); }}
                   onKeyDown={e => e.key === 'Enter' && handleCitySearch()}
@@ -398,9 +482,9 @@ export default function Form({ onPredict, loading }) {
                   {citySearching ? '…' : '🔍 Search'}
                 </button>
               </div>
-
+ 
               {cityErr && <div style={S.citySearchErr}>{cityErr}</div>}
-
+ 
               {cityResults.length > 0 && (
                 <div style={S.cityDropdown}>
                   {cityResults.map((c, i) => (
@@ -417,23 +501,21 @@ export default function Form({ onPredict, loading }) {
                   ))}
                 </div>
               )}
-
+ 
             </div>
           )}
           {/* ── end GPS denied block ── */}
-
+ 
         </div>
-
+ 
         {/* FORM */}
-        <form onSubmit={handleSubmit} className="form" style={S.form}>
-
+        <form onSubmit={handleSubmit} style={S.form}>
+ 
           {FIELDS.map(f => (
-            <div key={f.name} className="form-group" style={S.formGroup}>
-
+            <div key={f.name} style={S.formGroup}>
               <label style={S.label}>
                 {f.label} {f.unit && <span style={S.labelUnit}>({f.unit})</span>}
               </label>
-
               <input
                 style={S.input}
                 type="number"
@@ -445,38 +527,33 @@ export default function Form({ onPredict, loading }) {
                 step={f.step}
                 placeholder={f.placeholder}
               />
-
               {errs[f.name] && (
-                <small className="error" style={S.error}>{errs[f.name]}</small>
+                <small style={S.error}>{errs[f.name]}</small>
               )}
             </div>
           ))}
-
-          <button className="btn-primary" style={S.btnPrimary} disabled={loading}>
+ 
+          <button style={S.btnPrimary} disabled={loading}>
             {loading ? 'Predicting...' : '🌾 Predict Crop'}
           </button>
-
+ 
         </form>
-
+ 
         {/* WEATHER */}
-        <div className="weather-box" style={S.weatherBox}>
-
+        <div style={S.weatherBox}>
           {weatherLoading && (
-            <p className="loading" style={S.loading}>Loading weather...</p>
+            <p style={S.loading}>Loading weather...</p>
           )}
-
           {weather && !weatherLoading && (
-            <div className="weather-grid" style={S.weatherGrid}>
+            <div style={S.weatherGrid}>
               <div>🌡 {weather.temperature}°C</div>
               <div>💧 {weather.humidity}%</div>
               <div>🌧 {weather.rainfall} mm</div>
             </div>
           )}
-
         </div>
-
+ 
       </div>
-
     </div>
   );
 }
