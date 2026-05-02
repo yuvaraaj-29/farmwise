@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
- 
+
 // ─── Field definitions ────────────────────────────────────────────────────────
 const FIELDS = [
   { name: 'N',  label: 'Nitrogen (N)',   unit: 'mg/kg', min: 0,   max: 140, step: 1,   placeholder: '0–140'   },
@@ -7,7 +7,7 @@ const FIELDS = [
   { name: 'K',  label: 'Potassium (K)',  unit: 'mg/kg', min: 5,   max: 205, step: 1,   placeholder: '5–205'   },
   { name: 'ph', label: 'Soil pH',        unit: '',       min: 3.5, max: 9.9, step: 0.1, placeholder: '3.5–9.9' },
 ];
- 
+
 // ─── Manual Tamil Nadu city coordinates ──────────────────────────────────────
 // Predefined list; no API call needed for these cities
 const TN_CITIES = [
@@ -32,7 +32,7 @@ const TN_CITIES = [
   { name: 'Pudukkottai',   state: 'Tamil Nadu', lat: 10.3833, lon: 78.8001 },
   { name: 'Namakkal',      state: 'Tamil Nadu', lat: 11.2189, lon: 78.1674 },
 ];
- 
+
 // ─── Validation ───────────────────────────────────────────────────────────────
 function validate(form) {
   const errs = {};
@@ -44,7 +44,7 @@ function validate(form) {
   });
   return errs;
 }
- 
+
 // ─── GPS ──────────────────────────────────────────────────────────────────────
 function getGPS() {
   return new Promise((resolve, reject) => {
@@ -56,7 +56,7 @@ function getGPS() {
     );
   });
 }
- 
+
 // ─── City/Pincode → lat,lon using OpenWeatherMap Geocoding API ────────────────
 async function searchCityCoords(query) {
   const key = process.env.REACT_APP_OPEN_API_KEY;
@@ -69,7 +69,7 @@ async function searchCityCoords(query) {
   if (!results.length) throw new Error('City not found');
   return results;
 }
- 
+
 // ─── Weather ──────────────────────────────────────────────────────────────────
 async function fetchWeatherPreview(lat, lon) {
   const owKey = process.env.REACT_APP_OPEN_API_KEY;
@@ -102,7 +102,7 @@ async function fetchWeatherPreview(lat, lon) {
     };
   } catch { return null; }
 }
- 
+
 // ─── Inline styles ────────────────────────────────────────────────────────────
 const S = {
   formWrapper: {
@@ -133,7 +133,7 @@ const S = {
   locTextDetecting: { fontSize: '0.85rem', fontWeight: '600', color: '#92400e', margin: '0 0 0.5rem' },
   locTextError:     { fontSize: '0.85rem', fontWeight: '600', color: '#dc2626', margin: '0 0 0.5rem' },
   locCoords:        { fontSize: '0.70rem', color: '#6b7280', margin: '0 0 0.5rem', fontStyle: 'italic' },
- 
+
   btnSecondary: {
     background: 'transparent',
     border: '1.5px solid #16a34a',
@@ -145,7 +145,7 @@ const S = {
     cursor: 'pointer',
     fontWeight: '600',
   },
- 
+
   // GPS denied box
   gpsDeniedBox: {
     marginTop: '0.75rem',
@@ -156,7 +156,7 @@ const S = {
   },
   gpsDeniedTitle: { fontSize: '0.78rem', fontWeight: '700', color: '#9a3412', margin: '0 0 0.4rem' },
   gpsDeniedHint:  { fontSize: '0.70rem', color: '#9a3412', margin: '0 0 0.75rem' },
- 
+
   // ── Quick-select Tamil Nadu city chips ──
   quickLabel: {
     fontSize: '0.72rem',
@@ -190,7 +190,7 @@ const S = {
     border: '1.5px solid #16a34a',
     color: '#fff',
   },
- 
+
   // Divider between quick chips and search
   divider: {
     display: 'flex',
@@ -200,7 +200,7 @@ const S = {
   },
   dividerLine: { flex: 1, height: '1px', background: '#e5e7eb' },
   dividerText: { fontSize: '0.68rem', color: '#9ca3af', fontWeight: '600', whiteSpace: 'nowrap' },
- 
+
   // City search input
   cityInputRow: { display: 'flex', gap: '0.4rem' },
   cityInput: {
@@ -225,7 +225,7 @@ const S = {
     cursor: 'pointer',
     whiteSpace: 'nowrap',
   },
- 
+
   cityDropdown: {
     marginTop: '0.4rem',
     background: '#fff',
@@ -246,7 +246,7 @@ const S = {
   },
   cityItemState: { fontSize: '0.70rem', color: '#6b7280' },
   citySearchErr: { fontSize: '0.72rem', color: '#dc2626', marginTop: '0.3rem', fontWeight: '600' },
- 
+
   // Soil form
   form:      { display: 'flex', flexDirection: 'column', gap: '0.9rem' },
   formGroup: { display: 'flex', flexDirection: 'column', gap: '0.25rem' },
@@ -274,7 +274,7 @@ const S = {
     cursor: 'pointer',
     marginTop: '0.25rem',
   },
- 
+
   weatherBox: {
     marginTop: '1.1rem',
     background: '#eff6ff',
@@ -292,30 +292,30 @@ const S = {
   },
   loading: { fontSize: '0.82rem', color: '#6b7280', textAlign: 'center', margin: 0 },
 };
- 
+
 // ─── Component ────────────────────────────────────────────────────────────────
 export default function Form({ onPredict, loading }) {
   const [form, setForm] = useState({ N: '', P: '', K: '', ph: '' });
   const [errs, setErrs] = useState({});
- 
+
   // Location
   const [location,    setLocation]    = useState(null);
   const [isDetecting, setIsDetecting] = useState(false);
   const [gpsDenied,   setGpsDenied]   = useState(false);
- 
+
   // City search
   const [cityQuery,     setCityQuery]     = useState('');
   const [cityResults,   setCityResults]   = useState([]);
   const [citySearching, setCitySearching] = useState(false);
   const [cityErr,       setCityErr]       = useState('');
   const [activeChip,    setActiveChip]    = useState(null); // name of selected quick-city
- 
+
   // Weather
   const [weather,        setWeather]        = useState(null);
   const [weatherLoading, setWeatherLoading] = useState(false);
- 
+
   useEffect(() => { detectLocation(); }, []);
- 
+
   // ── GPS ──────────────────────────────────────────────────────────────────
   const detectLocation = async () => {
     setIsDetecting(true);
@@ -336,7 +336,7 @@ export default function Form({ onPredict, loading }) {
       setIsDetecting(false);
     }
   };
- 
+
   // ── Quick-select: pick a manual TN city chip ──────────────────────────────
   const handleChipPick = city => {
     const loc = {
@@ -353,7 +353,7 @@ export default function Form({ onPredict, loading }) {
     setCityErr('');
     loadWeather(city.lat, city.lon);
   };
- 
+
   // ── City search using OpenWeatherMap geocoding ────────────────────────────
   const handleCitySearch = async () => {
     if (!cityQuery.trim()) return;
@@ -372,7 +372,7 @@ export default function Form({ onPredict, loading }) {
       setCitySearching(false);
     }
   };
- 
+
   const handleCityPick = city => {
     const loc = {
       lat: city.lat,
@@ -387,7 +387,7 @@ export default function Form({ onPredict, loading }) {
     setActiveChip(null);
     loadWeather(city.lat, city.lon);
   };
- 
+
   // ── Weather ───────────────────────────────────────────────────────────────
   const loadWeather = async (lat, lon) => {
     setWeatherLoading(true);
@@ -396,13 +396,13 @@ export default function Form({ onPredict, loading }) {
     setWeather(w);
     setWeatherLoading(false);
   };
- 
+
   // ── Form ──────────────────────────────────────────────────────────────────
   const handleChange = e => {
     setForm(f => ({ ...f, [e.target.name]: e.target.value }));
     setErrs(prev => { const n = { ...prev }; delete n[e.target.name]; return n; });
   };
- 
+
   const handleSubmit = e => {
     e.preventDefault();
     const errors = validate(form);
@@ -416,14 +416,14 @@ export default function Form({ onPredict, loading }) {
     }
     onPredict(payload);
   };
- 
+
   // ── locText styles ────────────────────────────────────────────────────────
   const locTextStyle = isDetecting
     ? S.locTextDetecting
     : gpsDenied
       ? S.locTextError
       : S.locText;
- 
+
   const locText = isDetecting
     ? '📡 Detecting GPS…'
     : gpsDenied
@@ -431,25 +431,25 @@ export default function Form({ onPredict, loading }) {
       : location
         ? `📍 ${location.city}`
         : '—';
- 
+
   // ──────────────────────────────────────────────────────────────────────────
   return (
     <div style={S.formWrapper}>
       <div style={S.card}>
- 
+
         <h2 style={S.title}>🌱 FarmWise Crop Predictor</h2>
- 
+
         {/* LOCATION */}
         <div style={S.locationBox}>
- 
+
           <p style={locTextStyle}>{locText}</p>
- 
+
           {location && !isDetecting && (
             <p style={S.locCoords}>
               {location.lat.toFixed(5)}, {location.lon.toFixed(5)} via {location.method}
             </p>
           )}
- 
+
           <button
             type="button"
             style={S.btnSecondary}
@@ -458,12 +458,11 @@ export default function Form({ onPredict, loading }) {
           >
             🔄 Refresh Location
           </button>
- 
+
           {/* ── GPS DENIED: manual city picker ── */}
           {gpsDenied && (
             <div style={S.gpsDeniedBox}>
- 
-              {/* Search input */}
+
               <div style={S.cityInputRow}>
                 <input
                   style={S.cityInput}
@@ -482,9 +481,9 @@ export default function Form({ onPredict, loading }) {
                   {citySearching ? '…' : '🔍 Search'}
                 </button>
               </div>
- 
+
               {cityErr && <div style={S.citySearchErr}>{cityErr}</div>}
- 
+
               {cityResults.length > 0 && (
                 <div style={S.cityDropdown}>
                   {cityResults.map((c, i) => (
@@ -501,16 +500,16 @@ export default function Form({ onPredict, loading }) {
                   ))}
                 </div>
               )}
- 
+
             </div>
           )}
           {/* ── end GPS denied block ── */}
- 
+
         </div>
- 
+
         {/* FORM */}
         <form onSubmit={handleSubmit} style={S.form}>
- 
+
           {FIELDS.map(f => (
             <div key={f.name} style={S.formGroup}>
               <label style={S.label}>
@@ -532,13 +531,13 @@ export default function Form({ onPredict, loading }) {
               )}
             </div>
           ))}
- 
+
           <button style={S.btnPrimary} disabled={loading}>
             {loading ? 'Predicting...' : '🌾 Predict Crop'}
           </button>
- 
+
         </form>
- 
+
         {/* WEATHER */}
         <div style={S.weatherBox}>
           {weatherLoading && (
@@ -552,7 +551,7 @@ export default function Form({ onPredict, loading }) {
             </div>
           )}
         </div>
- 
+
       </div>
     </div>
   );
