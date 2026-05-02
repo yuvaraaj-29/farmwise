@@ -1,49 +1,11 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 
-// ─── Soil input field definitions ────────────────────────────────────────────
+// ─── Field definitions ────────────────────────────────────────────────────────
 const FIELDS = [
-  { name: 'N',  label: 'Nitrogen (N)',   unit: 'mg/kg', min: 0,   max: 140, icon: '🟦' },
-  { name: 'P',  label: 'Phosphorus (P)', unit: 'mg/kg', min: 5,   max: 145, icon: '🟧' },
-  { name: 'K',  label: 'Potassium (K)',  unit: 'mg/kg', min: 5,   max: 205, icon: '🟩' },
-  { name: 'ph', label: 'Soil pH',        unit: '',       min: 3.5, max: 9.9, icon: '⚗️' },
-];
-
-// ─── Popular Indian cities with accurate coordinates ─────────────────────────
-const CITY_PRESETS = [
-  // Tamil Nadu
-  { name: 'Sivakasi',      state: 'Tamil Nadu',     lat: 9.4533,  lon: 77.8025 },
-  { name: 'Chennai',       state: 'Tamil Nadu',     lat: 13.0827, lon: 80.2707 },
-  { name: 'Coimbatore',    state: 'Tamil Nadu',     lat: 11.0168, lon: 76.9558 },
-  { name: 'Madurai',       state: 'Tamil Nadu',     lat: 9.9252,  lon: 78.1198 },
-  { name: 'Tirunelveli',   state: 'Tamil Nadu',     lat: 8.7139,  lon: 77.7567 },
-  { name: 'Salem',         state: 'Tamil Nadu',     lat: 11.6643, lon: 78.1460 },
-  { name: 'Trichy',        state: 'Tamil Nadu',     lat: 10.7905, lon: 78.7047 },
-  { name: 'Erode',         state: 'Tamil Nadu',     lat: 11.3410, lon: 77.7172 },
-  { name: 'Vellore',       state: 'Tamil Nadu',     lat: 12.9165, lon: 79.1325 },
-  { name: 'Thoothukudi',   state: 'Tamil Nadu',     lat: 8.7642,  lon: 78.1348 },
-  { name: 'Dindigul',      state: 'Tamil Nadu',     lat: 10.3624, lon: 77.9695 },
-  { name: 'Thanjavur',     state: 'Tamil Nadu',     lat: 10.7870, lon: 79.1378 },
-  { name: 'Virudhunagar',  state: 'Tamil Nadu',     lat: 9.5810,  lon: 77.9624 },
-  { name: 'Ramanathapuram',state: 'Tamil Nadu',     lat: 9.3712,  lon: 78.8302 },
-  { name: 'Nagercoil',     state: 'Tamil Nadu',     lat: 8.1833,  lon: 77.4119 },
-  // Other States
-  { name: 'Bengaluru',     state: 'Karnataka',      lat: 12.9716, lon: 77.5946 },
-  { name: 'Hyderabad',     state: 'Telangana',      lat: 17.3850, lon: 78.4867 },
-  { name: 'Mumbai',        state: 'Maharashtra',    lat: 19.0760, lon: 72.8777 },
-  { name: 'Delhi',         state: 'Delhi',          lat: 28.7041, lon: 77.1025 },
-  { name: 'Kolkata',       state: 'West Bengal',    lat: 22.5726, lon: 88.3639 },
-  { name: 'Ahmedabad',     state: 'Gujarat',        lat: 23.0225, lon: 72.5714 },
-  { name: 'Pune',          state: 'Maharashtra',    lat: 18.5204, lon: 73.8567 },
-  { name: 'Jaipur',        state: 'Rajasthan',      lat: 26.9124, lon: 75.7873 },
-  { name: 'Lucknow',       state: 'Uttar Pradesh',  lat: 26.8467, lon: 80.9462 },
-  { name: 'Bhopal',        state: 'Madhya Pradesh', lat: 23.2599, lon: 77.4126 },
-  { name: 'Patna',         state: 'Bihar',          lat: 25.5941, lon: 85.1376 },
-  { name: 'Bhubaneswar',   state: 'Odisha',         lat: 20.2961, lon: 85.8245 },
-  { name: 'Kochi',         state: 'Kerala',         lat: 9.9312,  lon: 76.2673 },
-  { name: 'Guwahati',      state: 'Assam',          lat: 26.1445, lon: 91.7362 },
-  { name: 'Chandigarh',    state: 'Punjab',         lat: 30.7333, lon: 76.7794 },
-  { name: 'Nagpur',        state: 'Maharashtra',    lat: 21.1458, lon: 79.0882 },
-  { name: 'Visakhapatnam', state: 'Andhra Pradesh', lat: 17.6868, lon: 83.2185 },
+  { name: 'N',  label: 'Nitrogen (N)',   unit: 'mg/kg', min: 0,   max: 140, step: 1,   placeholder: '0–140'   },
+  { name: 'P',  label: 'Phosphorus (P)', unit: 'mg/kg', min: 5,   max: 145, step: 1,   placeholder: '5–145'   },
+  { name: 'K',  label: 'Potassium (K)',  unit: 'mg/kg', min: 5,   max: 205, step: 1,   placeholder: '5–205'   },
+  { name: 'ph', label: 'Soil pH',        unit: '',       min: 3.5, max: 9.9, step: 0.1, placeholder: '3.5–9.9' },
 ];
 
 // ─── Validation ───────────────────────────────────────────────────────────────
@@ -51,9 +13,9 @@ function validate(form) {
   const errs = {};
   FIELDS.forEach(f => {
     const v = parseFloat(form[f.name]);
-    if (form[f.name] === '')           errs[f.name] = 'Required';
-    else if (isNaN(v))                 errs[f.name] = 'Invalid number';
-    else if (v < f.min || v > f.max)   errs[f.name] = `Range: ${f.min}–${f.max}`;
+    if (form[f.name] === '')         errs[f.name] = 'Required';
+    else if (isNaN(v))               errs[f.name] = 'Invalid number';
+    else if (v < f.min || v > f.max) errs[f.name] = `Range: ${f.min}–${f.max}`;
   });
   return errs;
 }
@@ -61,378 +23,211 @@ function validate(form) {
 // ─── GPS ──────────────────────────────────────────────────────────────────────
 function getGPS() {
   return new Promise((resolve, reject) => {
-    if (!navigator.geolocation) {
-      reject(new Error('Geolocation not supported'));
-      return;
-    }
+    if (!navigator.geolocation) { reject(new Error('Not supported')); return; }
     navigator.geolocation.getCurrentPosition(
-      pos => resolve({ lat: pos.coords.latitude, lon: pos.coords.longitude }),
-      err => reject(err),
+      p => resolve({ lat: p.coords.latitude, lon: p.coords.longitude, method: 'GPS' }),
+      reject,
       { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
     );
   });
 }
 
-// ─── Weather fetch (Open-Meteo) ───────────────────────────────────────────────
+// ─── City/Pincode → lat,lon using OpenWeatherMap Geocoding API ────────────────
+// Uses your existing REACT_APP_OPEN_API_KEY — no extra key needed
+async function searchCityCoords(query) {
+  const key = process.env.REACT_APP_OPEN_API_KEY;
+  if (!key) throw new Error('REACT_APP_OPEN_API_KEY not set');
+  const r = await fetch(
+    `https://api.openweathermap.org/geo/1.0/direct?q=${encodeURIComponent(query)},IN&limit=5&appid=${key}`
+  );
+  if (!r.ok) throw new Error(`Geocoding error ${r.status}`);
+  const results = await r.json();
+  if (!results.length) throw new Error('City not found');
+  return results; // [{ name, lat, lon, state, country }]
+}
+
+// ─── Weather ──────────────────────────────────────────────────────────────────
 async function fetchWeatherPreview(lat, lon) {
+  // Primary: OpenWeatherMap (your paid key)
+  const owKey = process.env.REACT_APP_OPEN_API_KEY;
+  if (owKey) {
+    try {
+      const r = await fetch(
+        `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${owKey}&units=metric`
+      );
+      if (!r.ok) throw new Error(`OWM ${r.status}`);
+      const d = await r.json();
+      return {
+        temperature: d.main.temp,
+        humidity:    d.main.humidity,
+        rainfall:    d.rain?.['1h'] ?? d.rain?.['3h'] ?? 0,
+        source:      'OpenWeatherMap',
+      };
+    } catch (e) {
+      console.warn('[Weather] OWM failed:', e.message);
+    }
+  }
+  // Fallback: Open-Meteo (free)
   try {
-    const url = [
-      'https://api.open-meteo.com/v1/forecast',
-      `?latitude=${lat}&longitude=${lon}`,
-      '&current=temperature_2m,relative_humidity_2m,precipitation',
-      '&daily=precipitation_sum',
-      '&timezone=auto&forecast_days=1',
-    ].join('');
-    const r = await fetch(url);
-    if (!r.ok) throw new Error('Open-Meteo error');
-    const d = await r.json();
+    const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,precipitation&daily=precipitation_sum&timezone=auto&forecast_days=1`;
+    const d = await (await fetch(url)).json();
     const cur = d.current || {};
-    const rainSum = d.daily?.precipitation_sum?.[0] ?? cur.precipitation ?? 0;
     return {
       temperature: cur.temperature_2m,
       humidity:    cur.relative_humidity_2m,
-      rainfall:    rainSum,
+      rainfall:    d.daily?.precipitation_sum?.[0] ?? cur.precipitation ?? 0,
       source:      'Open-Meteo',
     };
-  } catch {
-    return null;
-  }
+  } catch { return null; }
 }
 
-// ─── Reverse geocode city name from coords (Open-Meteo geocoding) ─────────────
-async function reverseGeocode(lat, lon) {
-  try {
-    const url = `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`;
-    const r = await fetch(url, { headers: { 'Accept-Language': 'en' } });
-    const d = await r.json();
-    const addr = d.address || {};
-    return addr.city || addr.town || addr.village || addr.county || '';
-  } catch {
-    return '';
-  }
-}
+// ─── Inline styles ────────────────────────────────────────────────────────────
+const S = {
+  formWrapper: {
+    minHeight: '100vh',
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'flex-start',
+    padding: '2rem 1rem',
+    background: 'linear-gradient(135deg,#f0f7ee,#fef9ef)',
+  },
+  card: {
+    width: '100%',
+    maxWidth: '480px',
+    background: '#fff',
+    borderRadius: '20px',
+    padding: '2rem',
+    boxShadow: '0 8px 32px rgba(0,0,0,0.10)',
+  },
+  title: { fontSize: '1.5rem', fontWeight: '700', color: '#1a1a2e', margin: '0 0 1.25rem' },
+  locationBox: {
+    background: '#f0fdf4',
+    border: '1.5px solid #bbf7d0',
+    borderRadius: '12px',
+    padding: '0.9rem 1rem',
+    marginBottom: '1.25rem',
+  },
+  locText:          { fontSize: '0.85rem', fontWeight: '600', color: '#166534', margin: '0 0 0.5rem' },
+  locTextDetecting: { fontSize: '0.85rem', fontWeight: '600', color: '#92400e', margin: '0 0 0.5rem' },
+  locTextError:     { fontSize: '0.85rem', fontWeight: '600', color: '#dc2626', margin: '0 0 0.5rem' },
+  locCoords:        { fontSize: '0.70rem', color: '#6b7280', margin: '0 0 0.5rem', fontStyle: 'italic' },
 
-// ─── Styles ───────────────────────────────────────────────────────────────────
-const css = `
-  @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Space+Mono:wght@400;700&display=swap');
+  btnSecondary: {
+    background: 'transparent',
+    border: '1.5px solid #16a34a',
+    color: '#16a34a',
+    borderRadius: '8px',
+    padding: '0.3rem 0.75rem',
+    fontSize: '0.78rem',
+    fontFamily: 'inherit',
+    cursor: 'pointer',
+    fontWeight: '600',
+  },
 
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  // GPS denied box
+  gpsDeniedBox: {
+    marginTop: '0.75rem',
+    background: '#fff7ed',
+    border: '1.5px solid #fed7aa',
+    borderRadius: '10px',
+    padding: '0.75rem 0.9rem',
+  },
+  gpsDeniedTitle: { fontSize: '0.78rem', fontWeight: '700', color: '#9a3412', margin: '0 0 0.5rem' },
+  gpsDeniedHint:  { fontSize: '0.70rem', color: '#9a3412', margin: '0 0 0.6rem' },
 
-  :root {
-    --soil:   #8B5E3C;
-    --leaf:   #3A7D44;
-    --sky:    #2E86AB;
-    --sun:    #F4A261;
-    --cream:  #FEF9EF;
-    --dark:   #1A1A2E;
-    --muted:  #6B7280;
-    --error:  #EF4444;
-    --radius: 14px;
-    --shadow: 0 4px 24px rgba(0,0,0,0.08);
-  }
+  // City search input
+  cityInputRow: { display: 'flex', gap: '0.4rem' },
+  cityInput: {
+    flex: 1,
+    border: '1.5px solid #d1d5db',
+    borderRadius: '8px',
+    padding: '0.5rem 0.7rem',
+    fontSize: '0.85rem',
+    fontFamily: 'inherit',
+    outline: 'none',
+    minWidth: 0,
+  },
+  citySearchBtn: {
+    background: '#16a34a',
+    color: '#fff',
+    border: 'none',
+    borderRadius: '8px',
+    padding: '0.5rem 0.85rem',
+    fontSize: '0.78rem',
+    fontFamily: 'inherit',
+    fontWeight: '700',
+    cursor: 'pointer',
+    whiteSpace: 'nowrap',
+  },
 
-  body { font-family: 'Space Mono', monospace; background: var(--cream); color: var(--dark); min-height: 100vh; }
+  // Search results dropdown
+  cityDropdown: {
+    marginTop: '0.4rem',
+    background: '#fff',
+    border: '1.5px solid #d1d5db',
+    borderRadius: '8px',
+    boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
+    overflow: 'hidden',
+  },
+  cityItem: {
+    padding: '0.5rem 0.75rem',
+    fontSize: '0.82rem',
+    cursor: 'pointer',
+    display: 'flex',
+    justifyContent: 'space-between',
+    borderBottom: '1px solid #f3f4f6',
+    background: '#fff',
+    transition: 'background 0.15s',
+  },
+  cityItemState: { fontSize: '0.70rem', color: '#6b7280' },
+  citySearchErr: { fontSize: '0.72rem', color: '#dc2626', marginTop: '0.3rem', fontWeight: '600' },
 
-  .fw-wrap {
-    min-height: 100vh;
-    background: linear-gradient(135deg, #f0f7ee 0%, #fef9ef 50%, #e8f4fd 100%);
-    padding: 2rem 1rem 4rem;
-    display: flex;
-    justify-content: center;
-    align-items: flex-start;
-  }
+  // Soil form
+  form:      { display: 'flex', flexDirection: 'column', gap: '0.9rem' },
+  formGroup: { display: 'flex', flexDirection: 'column', gap: '0.25rem' },
+  label:     { fontSize: '0.82rem', fontWeight: '600', color: '#374151' },
+  labelUnit: { fontWeight: '400', color: '#6b7280', fontSize: '0.75rem' },
+  input: {
+    border: '1.5px solid #e5e7eb',
+    borderRadius: '10px',
+    padding: '0.6rem 0.8rem',
+    fontSize: '0.9rem',
+    fontFamily: 'inherit',
+    outline: 'none',
+    background: '#fafafa',
+  },
+  error: { fontSize: '0.72rem', color: '#dc2626', fontWeight: '600' },
+  btnPrimary: {
+    background: 'linear-gradient(135deg,#16a34a,#166534)',
+    color: '#fff',
+    border: 'none',
+    borderRadius: '12px',
+    padding: '0.85rem',
+    fontSize: '1rem',
+    fontFamily: 'inherit',
+    fontWeight: '700',
+    cursor: 'pointer',
+    marginTop: '0.25rem',
+  },
 
-  .fw-card {
-    width: 100%;
-    max-width: 520px;
-    background: #fff;
-    border-radius: 24px;
-    box-shadow: 0 8px 40px rgba(58,125,68,0.10), 0 2px 8px rgba(0,0,0,0.05);
-    overflow: hidden;
-  }
-
-  .fw-header {
-    background: linear-gradient(135deg, var(--leaf) 0%, #2d6a4f 100%);
-    padding: 2rem 2rem 1.5rem;
-    color: #fff;
-  }
-
-  .fw-header h1 {
-    font-family: 'Syne', sans-serif;
-    font-size: 1.8rem;
-    font-weight: 800;
-    letter-spacing: -0.5px;
-  }
-
-  .fw-header p { font-size: 0.82rem; opacity: 0.8; margin-top: 0.25rem; }
-
-  .fw-body { padding: 1.75rem 2rem; }
-
-  /* ── Location Panel ── */
-  .loc-panel {
-    background: #f8fffe;
-    border: 1.5px solid #c8e6c9;
-    border-radius: var(--radius);
-    padding: 1rem 1.25rem;
-    margin-bottom: 1.5rem;
-  }
-
-  .loc-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 0.5rem;
-  }
-
-  .loc-label { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--leaf); }
-
-  .loc-refresh {
-    background: none;
-    border: 1.5px solid var(--leaf);
-    color: var(--leaf);
-    border-radius: 8px;
-    padding: 0.25rem 0.6rem;
-    font-size: 0.72rem;
-    font-family: inherit;
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-  .loc-refresh:hover { background: var(--leaf); color: #fff; }
-
-  .loc-status {
-    font-size: 0.85rem;
-    font-weight: 700;
-    color: var(--dark);
-    min-height: 1.2rem;
-  }
-
-  .loc-coords { font-size: 0.72rem; color: var(--muted); margin-top: 0.15rem; }
-
-  .loc-warning {
-    background: #fff8e1;
-    border: 1.5px solid #ffcc02;
-    border-radius: 10px;
-    padding: 0.6rem 0.9rem;
-    font-size: 0.78rem;
-    color: #92400e;
-    margin-top: 0.75rem;
-    font-weight: 600;
-  }
-
-  /* ── City Search ── */
-  .city-search-wrap { margin-top: 0.75rem; }
-
-  .city-search-input {
-    width: 100%;
-    border: 1.5px solid #d1d5db;
-    border-radius: 10px;
-    padding: 0.6rem 0.8rem;
-    font-family: inherit;
-    font-size: 0.85rem;
-    outline: none;
-    transition: border 0.2s;
-  }
-  .city-search-input:focus { border-color: var(--leaf); }
-
-  .city-dropdown {
-    background: #fff;
-    border: 1.5px solid #d1d5db;
-    border-radius: 10px;
-    margin-top: 0.35rem;
-    max-height: 220px;
-    overflow-y: auto;
-    box-shadow: var(--shadow);
-  }
-
-  .city-item {
-    padding: 0.6rem 0.9rem;
-    cursor: pointer;
-    font-size: 0.82rem;
-    border-bottom: 1px solid #f3f4f6;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    transition: background 0.15s;
-  }
-  .city-item:last-child { border-bottom: none; }
-  .city-item:hover { background: #f0fdf4; }
-  .city-state { font-size: 0.7rem; color: var(--muted); }
-
-  /* ── Manual Coords ── */
-  .manual-wrap { margin-top: 0.75rem; }
-
-  .manual-label {
-    font-size: 0.72rem;
-    font-weight: 700;
-    color: var(--muted);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin-bottom: 0.4rem;
-  }
-
-  .manual-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr auto;
-    gap: 0.5rem;
-  }
-
-  .manual-input {
-    border: 1.5px solid #d1d5db;
-    border-radius: 10px;
-    padding: 0.55rem 0.7rem;
-    font-family: inherit;
-    font-size: 0.82rem;
-    outline: none;
-    transition: border 0.2s;
-    width: 100%;
-  }
-  .manual-input:focus { border-color: var(--sky); }
-
-  .manual-btn {
-    background: var(--sky);
-    color: #fff;
-    border: none;
-    border-radius: 10px;
-    padding: 0.55rem 0.8rem;
-    font-family: inherit;
-    font-size: 0.78rem;
-    font-weight: 700;
-    cursor: pointer;
-    white-space: nowrap;
-    transition: background 0.2s;
-  }
-  .manual-btn:hover { background: #1a6d90; }
-
-  .map-hint {
-    font-size: 0.7rem;
-    color: var(--muted);
-    margin-top: 0.3rem;
-  }
-  .map-hint a { color: var(--sky); text-decoration: none; font-weight: 700; }
-
-  /* ── Weather Preview ── */
-  .weather-strip {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 0.5rem;
-    margin-top: 0.75rem;
-  }
-
-  .weather-chip {
-    background: #fff;
-    border: 1.5px solid #e5e7eb;
-    border-radius: 10px;
-    padding: 0.5rem 0.6rem;
-    text-align: center;
-  }
-
-  .weather-chip .wc-icon { font-size: 1.1rem; }
-  .weather-chip .wc-val  { font-size: 0.88rem; font-weight: 700; color: var(--dark); margin-top: 0.1rem; }
-  .weather-chip .wc-lbl  { font-size: 0.65rem; color: var(--muted); margin-top: 0.05rem; }
-
-  .weather-loading { font-size: 0.78rem; color: var(--muted); margin-top: 0.5rem; }
-
-  /* ── Soil Section ── */
-  .section-label {
-    font-size: 0.72rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    color: var(--muted);
-    margin-bottom: 0.85rem;
-  }
-
-  .fields-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 0.85rem;
-    margin-bottom: 1.5rem;
-  }
-
-  .field-group { display: flex; flex-direction: column; gap: 0.3rem; }
-
-  .field-label {
-    font-size: 0.72rem;
-    font-weight: 700;
-    color: var(--dark);
-    display: flex;
-    align-items: center;
-    gap: 0.3rem;
-  }
-
-  .field-input {
-    border: 1.5px solid #e5e7eb;
-    border-radius: 10px;
-    padding: 0.65rem 0.8rem;
-    font-family: inherit;
-    font-size: 0.9rem;
-    outline: none;
-    transition: border 0.2s, box-shadow 0.2s;
-    width: 100%;
-    color: var(--dark);
-    background: #fafafa;
-  }
-  .field-input:focus { border-color: var(--leaf); box-shadow: 0 0 0 3px rgba(58,125,68,0.1); background: #fff; }
-  .field-input.error { border-color: var(--error); }
-
-  .field-unit { font-size: 0.65rem; color: var(--muted); font-weight: 400; }
-  .field-error { font-size: 0.68rem; color: var(--error); font-weight: 600; }
-
-  /* ── Submit ── */
-  .submit-btn {
-    width: 100%;
-    background: linear-gradient(135deg, var(--leaf), #2d6a4f);
-    color: #fff;
-    border: none;
-    border-radius: 14px;
-    padding: 1rem;
-    font-family: 'Syne', sans-serif;
-    font-size: 1rem;
-    font-weight: 700;
-    cursor: pointer;
-    letter-spacing: 0.3px;
-    transition: opacity 0.2s, transform 0.1s;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-  }
-  .submit-btn:hover:not(:disabled) { opacity: 0.9; transform: translateY(-1px); }
-  .submit-btn:disabled { opacity: 0.6; cursor: not-allowed; }
-
-  /* ── Spinner ── */
-  .spinner {
-    width: 14px; height: 14px;
-    border: 2px solid rgba(255,255,255,0.3);
-    border-top-color: #fff;
-    border-radius: 50%;
-    animation: spin 0.6s linear infinite;
-    display: inline-block;
-  }
-  @keyframes spin { to { transform: rotate(360deg); } }
-
-  /* ── Pulse dot ── */
-  .pulse-dot {
-    width: 8px; height: 8px;
-    border-radius: 50%;
-    background: var(--leaf);
-    display: inline-block;
-    margin-right: 6px;
-    animation: pulse 1.2s ease-in-out infinite;
-  }
-  @keyframes pulse {
-    0%, 100% { opacity: 1; transform: scale(1); }
-    50%       { opacity: 0.4; transform: scale(0.7); }
-  }
-
-  @media (max-width: 420px) {
-    .fw-header { padding: 1.5rem; }
-    .fw-body   { padding: 1.25rem; }
-    .fields-grid { grid-template-columns: 1fr; }
-    .manual-row { grid-template-columns: 1fr 1fr; }
-    .manual-btn { grid-column: 1 / -1; }
-  }
-`;
+  // Weather
+  weatherBox: {
+    marginTop: '1.1rem',
+    background: '#eff6ff',
+    border: '1.5px solid #bfdbfe',
+    borderRadius: '12px',
+    padding: '0.75rem 1rem',
+    minHeight: '2rem',
+  },
+  weatherGrid: {
+    display: 'flex',
+    justifyContent: 'space-around',
+    fontSize: '0.88rem',
+    fontWeight: '700',
+    color: '#1e3a5f',
+  },
+  loading: { fontSize: '0.82rem', color: '#6b7280', textAlign: 'center', margin: 0 },
+};
 
 // ─── Component ────────────────────────────────────────────────────────────────
 export default function Form({ onPredict, loading }) {
@@ -440,104 +235,80 @@ export default function Form({ onPredict, loading }) {
   const [errs, setErrs] = useState({});
 
   // Location
-  const [location, setLocation]   = useState(null);  // { lat, lon, city, method }
-  const [locStatus, setLocStatus] = useState('idle'); // idle | detecting | gps_ok | gps_denied | manual
-  const [showCitySearch, setShowCitySearch] = useState(false);
+  const [location,    setLocation]    = useState(null);
+  const [isDetecting, setIsDetecting] = useState(false);
+  const [gpsDenied,   setGpsDenied]   = useState(false);
 
-  // City search
-  const [cityQuery, setCityQuery]   = useState('');
-  const [cityResults, setCityResults] = useState([]);
-  const searchRef = useRef(null);
-
-  // Manual coords
-  const [manualLat, setManualLat] = useState('');
-  const [manualLon, setManualLon] = useState('');
-  const [manualErr, setManualErr] = useState('');
+  // City search (shown only when GPS denied)
+  const [cityQuery,     setCityQuery]     = useState('');
+  const [cityResults,   setCityResults]   = useState([]);
+  const [citySearching, setCitySearching] = useState(false);
+  const [cityErr,       setCityErr]       = useState('');
 
   // Weather
-  const [weather, setWeather]             = useState(null);
+  const [weather,        setWeather]        = useState(null);
   const [weatherLoading, setWeatherLoading] = useState(false);
 
-  // Inject styles
-  useEffect(() => {
-    const tag = document.createElement('style');
-    tag.textContent = css;
-    document.head.appendChild(tag);
-    return () => document.head.removeChild(tag);
-  }, []);
+  useEffect(() => { detectLocation(); }, []);
 
-  // Auto-detect on mount
-  useEffect(() => { triggerGPS(); }, []);
-
-  // City search filter
-  useEffect(() => {
-    if (!cityQuery.trim()) { setCityResults([]); return; }
-    const q = cityQuery.toLowerCase();
-    const matches = CITY_PRESETS.filter(
-      c => c.name.toLowerCase().includes(q) || c.state.toLowerCase().includes(q)
-    ).slice(0, 10);
-    setCityResults(matches);
-  }, [cityQuery]);
-
-  // ── GPS detection ──────────────────────────────────────────────────────────
-  const triggerGPS = async () => {
-    setLocStatus('detecting');
+  // ── GPS ──────────────────────────────────────────────────────────────────
+  const detectLocation = async () => {
+    setIsDetecting(true);
+    setGpsDenied(false);
     setLocation(null);
     setWeather(null);
-    setShowCitySearch(false);
-
-    try {
-      const { lat, lon } = await getGPS();
-      const city = await reverseGeocode(lat, lon);
-      const loc = { lat, lon, city, method: 'GPS' };
-      setLocation(loc);
-      setLocStatus('gps_ok');
-      loadWeather(lat, lon);
-    } catch (err) {
-      console.warn('[FarmWise] GPS failed:', err.message);
-      // GPS was denied or unavailable — show city picker immediately
-      setLocStatus('gps_denied');
-      setShowCitySearch(true);
-    }
-  };
-
-  // ── Load weather ───────────────────────────────────────────────────────────
-  const loadWeather = async (lat, lon) => {
-    setWeatherLoading(true);
-    setWeather(null);
-    try {
-      const w = await fetchWeatherPreview(lat, lon);
-      setWeather(w);
-    } finally {
-      setWeatherLoading(false);
-    }
-  };
-
-  // ── City picker ────────────────────────────────────────────────────────────
-  const handleCityPick = city => {
-    const loc = { lat: city.lat, lon: city.lon, city: city.name, method: 'City' };
-    setLocation(loc);
-    setLocStatus('manual');
-    setShowCitySearch(false);
     setCityQuery('');
     setCityResults([]);
+    setCityErr('');
+    try {
+      const loc = await getGPS();
+      setLocation(loc);
+      loadWeather(loc.lat, loc.lon);
+    } catch {
+      // GPS denied → show city search box, never call IP API
+      setGpsDenied(true);
+    } finally {
+      setIsDetecting(false);
+    }
+  };
+
+  // ── City search using OpenWeatherMap geocoding ────────────────────────────
+  const handleCitySearch = async () => {
+    if (!cityQuery.trim()) return;
+    setCitySearching(true);
+    setCityErr('');
+    setCityResults([]);
+    try {
+      const results = await searchCityCoords(cityQuery.trim());
+      setCityResults(results);
+    } catch (e) {
+      setCityErr(e.message === 'City not found'
+        ? 'City not found. Try a different name (e.g. Sivakasi, Virudhunagar).'
+        : 'Search failed. Check your internet connection.');
+    } finally {
+      setCitySearching(false);
+    }
+  };
+
+  const handleCityPick = city => {
+    const loc = { lat: city.lat, lon: city.lon, city: `${city.name}, ${city.state || city.country}`, method: 'City search' };
+    setLocation(loc);
+    setGpsDenied(false);
+    setCityResults([]);
+    setCityQuery('');
     loadWeather(city.lat, city.lon);
   };
 
-  // ── Manual coords ──────────────────────────────────────────────────────────
-  const handleManualSubmit = () => {
-    const lat = parseFloat(manualLat);
-    const lon = parseFloat(manualLon);
-    if (isNaN(lat) || lat < 6 || lat > 37)  { setManualErr('Lat must be 6–37 for India'); return; }
-    if (isNaN(lon) || lon < 68 || lon > 98) { setManualErr('Lon must be 68–98 for India'); return; }
-    setManualErr('');
-    const loc = { lat, lon, city: `${lat.toFixed(4)}, ${lon.toFixed(4)}`, method: 'Manual' };
-    setLocation(loc);
-    setLocStatus('manual');
-    loadWeather(lat, lon);
+  // ── Weather ───────────────────────────────────────────────────────────────
+  const loadWeather = async (lat, lon) => {
+    setWeatherLoading(true);
+    setWeather(null);
+    const w = await fetchWeatherPreview(lat, lon);
+    setWeather(w);
+    setWeatherLoading(false);
   };
 
-  // ── Form handlers ──────────────────────────────────────────────────────────
+  // ── Form ──────────────────────────────────────────────────────────────────
   const handleChange = e => {
     setForm(f => ({ ...f, [e.target.name]: e.target.value }));
     setErrs(prev => { const n = { ...prev }; delete n[e.target.name]; return n; });
@@ -547,192 +318,165 @@ export default function Form({ onPredict, loading }) {
     e.preventDefault();
     const errors = validate(form);
     if (Object.keys(errors).length) return setErrs(errors);
-
     const payload = { N: +form.N, P: +form.P, K: +form.K, ph: +form.ph };
     if (location) { payload.lat = location.lat; payload.lon = location.lon; }
     if (weather)  { payload.temperature = weather.temperature; payload.humidity = weather.humidity; payload.rainfall = weather.rainfall; }
     onPredict(payload);
   };
 
-  // ── Location display ───────────────────────────────────────────────────────
-  const locDisplay = () => {
-    if (locStatus === 'detecting')  return <><span className="pulse-dot"/>Detecting GPS…</>;
-    if (locStatus === 'gps_ok' && location)
-      return `📍 ${location.city || 'GPS Location'} (${location.lat.toFixed(4)}, ${location.lon.toFixed(4)})`;
-    if (locStatus === 'manual' && location)
-      return `📍 ${location.city} (${location.lat.toFixed(4)}, ${location.lon.toFixed(4)})`;
-    if (locStatus === 'gps_denied') return '❌ GPS denied — pick your city below';
-    return '—';
-  };
+  // ── locText / locCls (your original variable names) ───────────────────────
+  const locText = isDetecting
+    ? '📡 Detecting GPS…'
+    : gpsDenied
+      ? '❌ GPS denied — enter your city below'
+      : location
+        ? `📍 ${location.city}`
+        : '—';
 
+  const locCls = isDetecting ? 'detecting' : gpsDenied ? 'error' : location ? 'success' : '';
+
+  const locTextStyle = isDetecting
+    ? S.locTextDetecting
+    : gpsDenied
+      ? S.locTextError
+      : S.locText;
+
+  // ──────────────────────────────────────────────────────────────────────────
   return (
-    <div className="fw-wrap">
-      <div className="fw-card">
+    <div className="form-wrapper" style={S.formWrapper}>
 
-        {/* Header */}
-        <div className="fw-header">
-          <h1>🌾 FarmWise</h1>
-          <p>AI-powered crop recommendation for Indian farmers</p>
-        </div>
+      <div className="card form-card" style={S.card}>
 
-        <div className="fw-body">
+        <h2 className="title" style={S.title}>🌱 FarmWise Crop Predictor</h2>
 
-          {/* ── Location Panel ── */}
-          <div className="loc-panel">
-            <div className="loc-header">
-              <span className="loc-label">📡 Location</span>
-              <button className="loc-refresh" onClick={triggerGPS} disabled={locStatus === 'detecting'}>
-                🔄 Retry GPS
-              </button>
-            </div>
+        {/* LOCATION */}
+        <div className="location-box" style={S.locationBox}>
 
-            <div className="loc-status">{locDisplay()}</div>
-            {location && (
-              <div className="loc-coords">
-                Lat {location.lat.toFixed(6)} | Lon {location.lon.toFixed(6)} | via {location.method}
-              </div>
-            )}
+          <p className={`loc-text ${locCls}`} style={locTextStyle}>{locText}</p>
 
-            {/* IP location warning — never auto-use IP */}
-            {locStatus === 'gps_denied' && (
-              <div className="loc-warning">
-                ⚠️ IP-based location is NOT used — it resolves to your ISP's city (e.g. Chennai), not your actual location.
-                Please pick your city below for accurate weather data.
-              </div>
-            )}
+          {/* Show coords when detected */}
+          {location && !isDetecting && (
+            <p style={S.locCoords}>
+              {location.lat.toFixed(5)}, {location.lon.toFixed(5)} via {location.method}
+            </p>
+          )}
 
-            {/* ── City Search ── */}
-            {showCitySearch && (
-              <div className="city-search-wrap" ref={searchRef}>
+          <button
+            type="button"
+            className="btn-secondary"
+            style={S.btnSecondary}
+            onClick={detectLocation}
+            disabled={isDetecting || loading}
+          >
+            🔄 Refresh Location
+          </button>
+
+          {/* ── GPS DENIED: city search box appears here ── */}
+          {gpsDenied && (
+            <div style={S.gpsDeniedBox}>
+
+              <p style={S.gpsDeniedTitle}>📍 Enter your city or district name</p>
+              <p style={S.gpsDeniedHint}>
+                GPS is off. IP location is unreliable in India — type your city for accurate weather.
+              </p>
+
+              <div style={S.cityInputRow}>
                 <input
-                  className="city-search-input"
+                  style={S.cityInput}
                   type="text"
-                  placeholder="🔍 Search city (e.g. Sivakasi, Coimbatore…)"
+                  placeholder="e.g. Sivakasi, Madurai, Coimbatore…"
                   value={cityQuery}
-                  onChange={e => setCityQuery(e.target.value)}
-                  autoFocus
+                  onChange={e => { setCityQuery(e.target.value); setCityErr(''); }}
+                  onKeyDown={e => e.key === 'Enter' && handleCitySearch()}
                 />
-                {cityResults.length > 0 && (
-                  <div className="city-dropdown">
-                    {cityResults.map(c => (
-                      <div key={c.name} className="city-item" onClick={() => handleCityPick(c)}>
-                        <span>{c.name}</span>
-                        <span className="city-state">{c.state}</span>
-                      </div>
-                    ))}
-                  </div>
-                )}
-                {cityQuery && cityResults.length === 0 && (
-                  <div className="city-dropdown">
-                    <div className="city-item" style={{ color: '#6B7280', cursor: 'default' }}>
-                      City not found — use manual coordinates below
+                <button
+                  style={S.citySearchBtn}
+                  type="button"
+                  onClick={handleCitySearch}
+                  disabled={citySearching}
+                >
+                  {citySearching ? '…' : '🔍 Search'}
+                </button>
+              </div>
+
+              {cityErr && <div style={S.citySearchErr}>{cityErr}</div>}
+
+              {cityResults.length > 0 && (
+                <div style={S.cityDropdown}>
+                  {cityResults.map((c, i) => (
+                    <div
+                      key={i}
+                      style={S.cityItem}
+                      onClick={() => handleCityPick(c)}
+                      onMouseEnter={e => e.currentTarget.style.background = '#f0fdf4'}
+                      onMouseLeave={e => e.currentTarget.style.background = '#fff'}
+                    >
+                      <span>{c.name}</span>
+                      <span style={S.cityItemState}>{c.state}, {c.country}</span>
                     </div>
-                  </div>
-                )}
-              </div>
-            )}
+                  ))}
+                </div>
+              )}
 
-            {/* ── Manual Coordinates ── */}
-            {(locStatus === 'gps_denied' || locStatus === 'manual') && (
-              <div className="manual-wrap">
-                <div className="manual-label">Or enter coordinates manually</div>
-                <div className="manual-row">
-                  <input
-                    className="manual-input"
-                    type="number"
-                    placeholder="Latitude"
-                    value={manualLat}
-                    onChange={e => { setManualLat(e.target.value); setManualErr(''); }}
-                    step="any"
-                  />
-                  <input
-                    className="manual-input"
-                    type="number"
-                    placeholder="Longitude"
-                    value={manualLon}
-                    onChange={e => { setManualLon(e.target.value); setManualErr(''); }}
-                    step="any"
-                  />
-                  <button className="manual-btn" onClick={handleManualSubmit}>✓ Set</button>
-                </div>
-                {manualErr && <div className="field-error" style={{ marginTop: '0.3rem' }}>{manualErr}</div>}
-                <div className="map-hint">
-                  Find your exact coordinates on{' '}
-                  <a href="https://maps.google.com" target="_blank" rel="noreferrer">Google Maps</a>
-                  {' '}→ right-click your location → copy lat/lon.{' '}
-                  <strong>Sivakasi: 9.4533, 77.8025</strong>
-                </div>
-              </div>
-            )}
-
-            {/* ── Change city button when location already set ── */}
-            {(locStatus === 'gps_ok' || locStatus === 'manual') && !showCitySearch && (
-              <button
-                type="button"
-                className="loc-refresh"
-                style={{ marginTop: '0.6rem', fontSize: '0.72rem' }}
-                onClick={() => setShowCitySearch(v => !v)}
-              >
-                🏙 Change City
-              </button>
-            )}
-
-            {/* ── Weather Preview ── */}
-            {weatherLoading && <p className="weather-loading">⏳ Fetching local weather…</p>}
-            {weather && !weatherLoading && (
-              <div className="weather-strip">
-                <div className="weather-chip">
-                  <div className="wc-icon">🌡</div>
-                  <div className="wc-val">{weather.temperature}°C</div>
-                  <div className="wc-lbl">Temp</div>
-                </div>
-                <div className="weather-chip">
-                  <div className="wc-icon">💧</div>
-                  <div className="wc-val">{weather.humidity}%</div>
-                  <div className="wc-lbl">Humidity</div>
-                </div>
-                <div className="weather-chip">
-                  <div className="wc-icon">🌧</div>
-                  <div className="wc-val">{weather.rainfall} mm</div>
-                  <div className="wc-lbl">Rain</div>
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* ── Soil Inputs ── */}
-          <div className="section-label">🧪 Soil Parameters</div>
-          <form onSubmit={handleSubmit} noValidate>
-            <div className="fields-grid">
-              {FIELDS.map(f => (
-                <div className="field-group" key={f.name}>
-                  <label className="field-label">
-                    {f.icon} {f.label}
-                    {f.unit && <span className="field-unit">({f.unit})</span>}
-                  </label>
-                  <input
-                    className={`field-input${errs[f.name] ? ' error' : ''}`}
-                    type="number"
-                    name={f.name}
-                    value={form[f.name]}
-                    onChange={handleChange}
-                    placeholder={`${f.min}–${f.max}`}
-                    step="any"
-                  />
-                  {errs[f.name] && <span className="field-error">{errs[f.name]}</span>}
-                </div>
-              ))}
             </div>
-
-            <button className="submit-btn" type="submit" disabled={loading || locStatus === 'detecting'}>
-              {loading
-                ? <><span className="spinner"/> Predicting…</>
-                : '🌾 Predict Best Crop'}
-            </button>
-          </form>
+          )}
+          {/* ── end GPS denied block ── */}
 
         </div>
+
+        {/* FORM */}
+        <form onSubmit={handleSubmit} className="form" style={S.form}>
+
+          {FIELDS.map(f => (
+            <div key={f.name} className="form-group" style={S.formGroup}>
+
+              <label style={S.label}>
+                {f.label} {f.unit && <span style={S.labelUnit}>({f.unit})</span>}
+              </label>
+
+              <input
+                style={S.input}
+                type="number"
+                name={f.name}
+                value={form[f.name]}
+                onChange={handleChange}
+                min={f.min}
+                max={f.max}
+                step={f.step}
+                placeholder={f.placeholder}
+              />
+
+              {errs[f.name] && (
+                <small className="error" style={S.error}>{errs[f.name]}</small>
+              )}
+            </div>
+          ))}
+
+          <button className="btn-primary" style={S.btnPrimary} disabled={loading}>
+            {loading ? 'Predicting...' : '🌾 Predict Crop'}
+          </button>
+
+        </form>
+
+        {/* WEATHER */}
+        <div className="weather-box" style={S.weatherBox}>
+
+          {weatherLoading && (
+            <p className="loading" style={S.loading}>Loading weather...</p>
+          )}
+
+          {weather && !weatherLoading && (
+            <div className="weather-grid" style={S.weatherGrid}>
+              <div>🌡 {weather.temperature}°C</div>
+              <div>💧 {weather.humidity}%</div>
+              <div>🌧 {weather.rainfall} mm</div>
+            </div>
+          )}
+
+        </div>
+
       </div>
+
     </div>
   );
 }
