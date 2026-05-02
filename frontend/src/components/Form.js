@@ -1,148 +1,186 @@
 import React, { useState, useEffect } from 'react';
 
 const FIELDS = [
-  { name: 'N', label: 'Nitrogen (N)', min: 0, max: 140 },
-  { name: 'P', label: 'Phosphorus (P)', min: 5, max: 145 },
-  { name: 'K', label: 'Potassium (K)', min: 5, max: 205 },
-  { name: 'ph', label: 'Soil pH', min: 3.5, max: 9.9 },
+  { name: 'N', label: 'Nitrogen (N)',   min: 0,   max: 140 },
+  { name: 'P', label: 'Phosphorus (P)', min: 5,   max: 145 },
+  { name: 'K', label: 'Potassium (K)',  min: 5,   max: 205 },
+  { name: 'ph', label: 'Soil pH',       min: 3.5, max: 9.9 },
 ];
 
-// ---------------- VALIDATION ----------------
+// ── Validation ────────────────────────────────────────────────────────────────
 function validate(form) {
   const errs = {};
   FIELDS.forEach(f => {
     const v = parseFloat(form[f.name]);
-    if (form[f.name] === '') errs[f.name] = 'Required';
-    else if (isNaN(v)) errs[f.name] = 'Invalid number';
-    else if (v < f.min || v > f.max) errs[f.name] = `Range ${f.min}-${f.max}`;
+    if (form[f.name] === '')      errs[f.name] = 'Required';
+    else if (isNaN(v))            errs[f.name] = 'Invalid number';
+    else if (v < f.min || v > f.max) errs[f.name] = `Range ${f.min}–${f.max}`;
   });
   return errs;
 }
 
-// ---------------- WEATHER API ----------------
-async function fetchWeather(lat, lon) {
-  const weatherKey = process.env.REACT_APP_WEATHER_API_KEY;
-  const openKey = process.env.REACT_APP_OPEN_API_KEY;
-
-  // WeatherAPI
-  try {
-    const res = await fetch(
-      `https://api.weatherapi.com/v1/current.json?key=${weatherKey}&q=${lat},${lon}`
-    );
-
-    const data = await res.json();
-    if (!res.ok) throw new Error("WeatherAPI failed");
-
-    return {
-      temperature: data.current.temp_c,
-      humidity: data.current.humidity,
-      rainfall: data.current.precip_mm || 0,
-      source: "WeatherAPI"
-    };
-  } catch (e) {
-    console.warn("WeatherAPI failed:", e.message);
-  }
-
-  // OpenWeather fallback
-  try {
-    const res = await fetch(
-      `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${openKey}&units=metric`
-    );
-
-    const data = await res.json();
-    if (!res.ok) throw new Error("OpenWeather failed");
-
-    return {
-      temperature: data.main.temp,
-      humidity: data.main.humidity,
-      rainfall: data.rain?.["1h"] || 0,
-      source: "OpenWeather"
-    };
-  } catch (e) {
-    console.warn("OpenWeather failed:", e.message);
-  }
-
-  throw new Error("Weather fetch failed");
-}
-
-// ---------------- GPS LOCATION ----------------
+// ── GPS ───────────────────────────────────────────────────────────────────────
 function getGPS() {
   return new Promise((resolve, reject) => {
-    if (!navigator.geolocation) reject("No GPS");
-
+    if (!navigator.geolocation) {
+      reject(new Error('Geolocation not supported'));
+      return;
+    }
     navigator.geolocation.getCurrentPosition(
-      pos => {
-        resolve({
-          lat: pos.coords.latitude,
-          lon: pos.coords.longitude,
-          method: "GPS"
-        });
-      },
-      reject,
+      pos => resolve({ lat: pos.coords.latitude, lon: pos.coords.longitude }),
+      err => reject(err),
       { enableHighAccuracy: true, timeout: 12000 }
     );
   });
 }
 
-// ---------------- IP FALLBACK ----------------
+// ── IP geolocation (3-provider waterfall) ─────────────────────────────────────
 async function getIPLocation() {
-  // Try multiple free providers in order — ipapi.co rate-limits to ~45 req/hour
   const providers = [
     async () => {
-      const res = await fetch('https://ipapi.co/json/');
-      const d = await res.json();
+      const r = await fetch('https://ipapi.co/json/');
+      const d = await r.json();
       if (!d.latitude) throw new Error('no coords');
       return { lat: d.latitude, lon: d.longitude, city: d.city || '' };
     },
     async () => {
-      const res = await fetch('https://ip-api.com/json/?fields=lat,lon,city,status');
-      const d = await res.json();
+      const r = await fetch('https://ip-api.com/json/?fields=status,lat,lon,city');
+      const d = await r.json();
       if (d.status !== 'success') throw new Error('failed');
       return { lat: d.lat, lon: d.lon, city: d.city || '' };
     },
     async () => {
-      const res = await fetch('https://freeipapi.com/api/json');
-      const d = await res.json();
+      const r = await fetch('https://freeipapi.com/api/json');
+      const d = await r.json();
       if (!d.latitude) throw new Error('no coords');
       return { lat: d.latitude, lon: d.longitude, city: d.cityName || '' };
     },
   ];
-
-  for (const provider of providers) {
-    try {
-      const result = await provider();
-      return { ...result, method: 'IP' };
-    } catch {
-      // try next provider
-    }
+  for (const fn of providers) {
+    try { return await fn(); } catch { /* try next */ }
   }
   return null;
 }
 
-// ---------------- MAIN COMPONENT ----------------
+// ── Weather via Open-Meteo (frontend display only) ────────────────────────────
+// NOTE: The ML backend fetches its own weather using the lat/lon we send.
+// This fetch is only for the UI preview shown in the form before submitting.
+async function fetchWeatherPreview(lat, lon) {
+  // Primary: Open-Meteo (free, no key)
+  try {
+    const url = [
+      'https://api.open-meteo.com/v1/forecast',
+      `?latitude=${lat}&longitude=${lon}`,
+      '&current=temperature_2m,relative_humidity_2m,precipitation',
+      '&daily=precipitation_sum',
+      '&timezone=auto&forecast_days=1',
+    ].join('');
+    const r = await fetch(url);
+    if (!r.ok) throw new Error('Open-Meteo error');
+    const d = await r.json();
+    const cur = d.current || {};
+    const rainSum = d.daily?.precipitation_sum?.[0] ?? cur.precipitation ?? 0;
+    return {
+      temperature: cur.temperature_2m,
+      humidity:    cur.relative_humidity_2m,
+      rainfall:    rainSum,
+      source:      'Open-Meteo',
+    };
+  } catch { /* fall through */ }
+
+  // Fallback: WeatherAPI (needs env key, may be missing)
+  const wKey = process.env.REACT_APP_WEATHER_API_KEY;
+  if (wKey) {
+    try {
+      const r = await fetch(
+        `https://api.weatherapi.com/v1/current.json?key=${wKey}&q=${lat},${lon}`
+      );
+      if (!r.ok) throw new Error('WeatherAPI error');
+      const d = await r.json();
+      return {
+        temperature: d.current.temp_c,
+        humidity:    d.current.humidity,
+        rainfall:    d.current.precip_mm || 0,
+        source:      'WeatherAPI',
+      };
+    } catch { /* fall through */ }
+  }
+
+  // Fallback: OpenWeatherMap
+  const owKey = process.env.REACT_APP_OPEN_API_KEY;
+  if (owKey) {
+    try {
+      const r = await fetch(
+        `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${owKey}&units=metric`
+      );
+      if (!r.ok) throw new Error('OpenWeather error');
+      const d = await r.json();
+      return {
+        temperature: d.main.temp,
+        humidity:    d.main.humidity,
+        rainfall:    d.rain?.['1h'] || 0,
+        source:      'OpenWeather',
+      };
+    } catch { /* fall through */ }
+  }
+
+  return null; // all providers failed — UI shows nothing
+}
+
+// ── Component ─────────────────────────────────────────────────────────────────
 export default function Form({ onPredict, loading }) {
   const [form, setForm] = useState({ N: '', P: '', K: '', ph: '' });
   const [errs, setErrs] = useState({});
 
-  const [lat, setLat] = useState(null);
-  const [lon, setLon] = useState(null);
-  const [locCity, setLocCity] = useState('');
+  // Location state
+  const [location, setLocation] = useState(null); // { lat, lon, city, method }
+  const [locStatus, setLocStatus] = useState('idle'); // idle | detecting | detected | denied
 
-  const [locStatus, setLocStatus] = useState("idle");
-  const [locMethod, setLocMethod] = useState("");
-
-  const [weather, setWeather] = useState(null);
+  // Weather preview state (for UI only)
+  const [weather, setWeather]           = useState(null);
   const [weatherLoading, setWeatherLoading] = useState(false);
 
-  useEffect(() => {
-    detectLocation();
-  }, []);
+  useEffect(() => { detectLocation(); }, []);
 
-  // ---------------- WEATHER ----------------
-  const loadWeather = async (lt, ln) => {
+  // ── Location detection ────────────────────────────────────────────────────
+  const detectLocation = async () => {
+    setLocStatus('detecting');
+    setWeather(null);
+    setLocation(null);
+
+    // 1) GPS (most accurate)
+    try {
+      const { lat, lon } = await getGPS();
+      const loc = { lat, lon, city: '', method: 'GPS' };
+      setLocation(loc);
+      setLocStatus('detected');
+      loadWeatherPreview(lat, lon);
+      return;
+    } catch (e) {
+      console.warn('[FarmWise] GPS failed:', e.message, '→ trying IP');
+    }
+
+    // 2) IP geolocation (approximate, but works without permission)
+    const ip = await getIPLocation();
+    if (ip) {
+      const loc = { lat: ip.lat, lon: ip.lon, city: ip.city || '', method: 'IP' };
+      setLocation(loc);
+      setLocStatus('detected');
+      loadWeatherPreview(ip.lat, ip.lon);
+      return;
+    }
+
+    // 3) Nothing worked
+    console.warn('[FarmWise] All location methods failed');
+    setLocStatus('denied');
+  };
+
+  // ── Weather preview (UI only) ─────────────────────────────────────────────
+  const loadWeatherPreview = async (lat, lon) => {
     setWeatherLoading(true);
     try {
-      setWeather(await fetchWeather(lt, ln));
+      const w = await fetchWeatherPreview(lat, lon);
+      setWeather(w);
     } catch {
       setWeather(null);
     } finally {
@@ -150,87 +188,69 @@ export default function Form({ onPredict, loading }) {
     }
   };
 
-  // ---------------- LOCATION FLOW ----------------
-  const detectLocation = async () => {
-    setLocStatus("detecting");
-    setWeather(null);
-
-    // 1️⃣ Try GPS first
-    try {
-      const gps = await getGPS();
-      setLat(gps.lat);
-      setLon(gps.lon);
-      setLocMethod("GPS");
-      setLocStatus("detected");
-      setLocCity('');  // city will appear in ResultCard via backend reverse-geocode
-      loadWeather(gps.lat, gps.lon);
-      return;
-    } catch {
-      console.warn("GPS failed → trying IP");
-    }
-
-    // 2️⃣ Fallback IP
-    const ip = await getIPLocation();
-
-    if (ip) {
-      setLat(ip.lat);
-      setLon(ip.lon);
-      setLocMethod("IP");
-      setLocCity(ip.city || '');
-      setLocStatus("detected");
-      loadWeather(ip.lat, ip.lon);
-    } else {
-      setLocStatus("denied");
-    }
-  };
-
-  // ---------------- INPUT ----------------
+  // ── Form handlers ─────────────────────────────────────────────────────────
   const handleChange = e => {
     setForm(f => ({ ...f, [e.target.name]: e.target.value }));
     setErrs({});
   };
 
-  // ---------------- SUBMIT ----------------
   const handleSubmit = e => {
     e.preventDefault();
-
     const errors = validate(form);
     if (Object.keys(errors).length) return setErrs(errors);
 
-    onPredict({
-      N: +form.N,
-      P: +form.P,
-      K: +form.K,
+    // Always include lat/lon so the backend fetches weather for the right place.
+    // Also include the frontend-fetched weather values if available — the backend
+    // will use those directly and skip its own re-fetch, saving latency.
+    const payload = {
+      N:  +form.N,
+      P:  +form.P,
+      K:  +form.K,
       ph: +form.ph,
-      lat,
-      lon
-    });
+    };
+
+    if (location != null) {
+      payload.lat = location.lat;
+      payload.lon = location.lon;
+    }
+
+    // Send frontend weather so backend uses consistent values shown to the user
+    if (weather) {
+      payload.temperature = weather.temperature;
+      payload.humidity    = weather.humidity;
+      payload.rainfall    = weather.rainfall;
+    }
+
+    onPredict(payload);
   };
 
-  // ---------------- UI STATUS ----------------
-  const locationText =
-    locStatus === "detecting"
-      ? "📡 Detecting location..."
-      : locStatus === "detected"
-      ? `📍 ${locMethod}: ${locCity ? locCity + ' ' : ''}(${lat?.toFixed(4)}, ${lon?.toFixed(4)})`
-      : "❌ Location unavailable — weather will use regional averages";
+  // ── Location display text ─────────────────────────────────────────────────
+  const locationText = (() => {
+    if (locStatus === 'detecting') return '📡 Detecting location…';
+    if (locStatus === 'detected' && location) {
+      const place = location.city
+        ? `${location.city} (${location.lat.toFixed(3)}, ${location.lon.toFixed(3)})`
+        : `${location.lat.toFixed(4)}, ${location.lon.toFixed(4)}`;
+      return `📍 ${location.method}: ${place}`;
+    }
+    return '❌ Location unavailable — weather will use regional averages';
+  })();
 
+  // ── Render ────────────────────────────────────────────────────────────────
   return (
     <div className="form-wrapper">
-
       <div className="card">
-
         <h2>🌱 FarmWise Crop Predictor</h2>
 
-        {/* LOCATION */}
+        {/* Location */}
         <div className="location-box">
           <p>{locationText}</p>
-          <button type="button" onClick={detectLocation}>
+          <button type="button" onClick={detectLocation} disabled={locStatus === 'detecting'}>
             🔄 Refresh Location
           </button>
         </div>
 
-        {/* FORM */}
+        {/* Soil inputs */}
         <form onSubmit={handleSubmit}>
           {FIELDS.map(f => (
             <div key={f.name}>
@@ -240,30 +260,31 @@ export default function Form({ onPredict, loading }) {
                 name={f.name}
                 value={form[f.name]}
                 onChange={handleChange}
+                step="any"
               />
-              {errs[f.name] && <small style={{ color: "red" }}>{errs[f.name]}</small>}
+              {errs[f.name] && (
+                <small style={{ color: 'red' }}>{errs[f.name]}</small>
+              )}
             </div>
           ))}
-
           <button disabled={loading}>
-            {loading ? "Predicting..." : "🌾 Predict Crop"}
+            {loading ? 'Predicting…' : '🌾 Predict Crop'}
           </button>
         </form>
 
-        {/* WEATHER */}
-        {weather && (
+        {/* Weather preview */}
+        {weatherLoading && <p>Loading weather…</p>}
+        {weather && !weatherLoading && (
           <div className="weather-box">
             <p>🌡 Temp: {weather.temperature}°C</p>
             <p>💧 Humidity: {weather.humidity}%</p>
             <p>🌧 Rain: {weather.rainfall} mm</p>
-            <p>📡 Source: {weather.source}</p>
+            <p style={{ fontSize: '0.8rem', opacity: 0.6 }}>
+              Source: {weather.source}
+            </p>
           </div>
         )}
-
-        {weatherLoading && <p>Loading weather...</p>}
-
       </div>
-
     </div>
   );
 }
